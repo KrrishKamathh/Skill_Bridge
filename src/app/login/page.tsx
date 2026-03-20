@@ -112,16 +112,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-        <div className="mt-8 text-center border-t border-white/10 pt-6">
-          <p className="text-slate-400">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-              Sign up
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
