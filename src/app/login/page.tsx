@@ -12,6 +12,7 @@ function LoginForm() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('STUDENT');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -37,8 +38,33 @@ function LoginForm() {
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2 text-white">Welcome Back</h1>
-        <p className="text-slate-400">Sign in to your SkillBridge account</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2 text-white italic text-4xl">
+          Skill<span className="text-blue-500">Bridge</span>
+        </h1>
+        <p className="text-slate-400 font-medium mt-2">Please select your role to continue</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <button
+          onClick={() => setRole('STUDENT')}
+          className={`py-3 rounded-xl border font-semibold transition-all ${
+            role === 'STUDENT' 
+              ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
+              : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+          }`}
+        >
+          Student
+        </button>
+        <button
+          onClick={() => setRole('RECRUITER')}
+          className={`py-3 rounded-xl border font-semibold transition-all ${
+            role === 'RECRUITER' 
+              ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
+              : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+          }`}
+        >
+          Recruiter
+        </button>
       </div>
 
       {registered && (

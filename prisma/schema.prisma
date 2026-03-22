@@ -10,11 +10,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  STUDENT
+  RECRUITER
+  ADMIN
+}
+
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String            @id @default(cuid())
+  name             String?
+  email            String            @unique
+  password         String
+  role             Role              @default(STUDENT)
+  githubUrl        String?           // Career Hub
+  linkedinUrl      String?           // Career Hub
+  twitterUrl       String?           // Career Hub
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  studentProfile   StudentProfile?
+  recruiterProfile RecruiterProfile?
+}
+
+model StudentProfile {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio          String?
+  resumeUrl    String?
+  skills       Skill[]
+  applications Application[]
+  education    Education[]
+  experience   Experience[]
+  projects     Project[]     // Portfolio
+  certificates Certificate[]
+  achievements String[]      // Accomplishments
+  preferences  Json?         // Job Preferences
+}
+
+model RecruiterProfile {
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company String?
+  jobs    Job[]
+}
+
+model Job {
+  id           String           @id @default(cuid())
+  title        String
+  description  String
+  requirements String
+  location     String?
+  salary       String?
+  recruiterId  String
+  recruiter    RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  skills       Skill[]
+  applications Application[]
+  createdAt    DateTime         @default(now())
+}
+
+model Skill {
+  id       String           @id @default(cuid())
+  name     String           @unique
+  students StudentProfile[]
+  jobs     Job[]
+}
+
+model Application {
+  id        String         @id @default(cuid())
+  jobId     String
+  job       Job            @relation(fields: [jobId], references: [id])
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  status    String         @default("PENDING")
+  summary   String?
+  createdAt DateTime       @default(now())
+}
+
+model Course {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  url         String
+  price       Float   @default(0)
+  platform    String?
+  category    String?
+}
+
+model Education {
+  id        String         @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  school    String
+  degree    String
+  year      String
+  gpa       String?        // For Career Hub
+}
+
+model Experience {
+  id          String         @id @default(cuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id])
+  company     String
+  position    String
+  duration    String
+  description String?
+}
+
+model Project {
+  id               String         @id @default(cuid())
+  title            String
+  description      String?        @db.Text
+  url              String?        // Project/GitHub link
+  techStack        String[]       // Technologies used
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+}
+
+model Certificate {
+  id        String         @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title     String
+  issuer    String
+  url       String?        // Existing general URL
+  proofUrl  String?        // New proof image URL
+  verified  Boolean        @default(false)
+  year      String?
 }

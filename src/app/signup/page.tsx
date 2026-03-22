@@ -4,11 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialRole = searchParams.get('role')?.toUpperCase() || 'STUDENT';
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState(initialRole);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,7 +24,7 @@ export default function SignupPage() {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, role }),
     });
 
     if (res.ok) {
@@ -76,6 +82,34 @@ export default function SignupPage() {
               className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
               placeholder="••••••••" required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-3 text-center">I am a...</label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setRole('STUDENT')}
+                className={`py-3 rounded-xl border transition-all ${
+                  role === 'STUDENT' 
+                    ? 'bg-blue-600/20 border-blue-500 text-blue-100' 
+                    : 'bg-black/40 border-white/10 text-slate-400 hover:border-white/20'
+                }`}
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('RECRUITER')}
+                className={`py-3 rounded-xl border transition-all ${
+                  role === 'RECRUITER' 
+                    ? 'bg-blue-600/20 border-blue-500 text-blue-100' 
+                    : 'bg-black/40 border-white/10 text-slate-400 hover:border-white/20'
+                }`}
+              >
+                Recruiter
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="w-full py-4 rounded-xl bg-blue-600 font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] mt-4">
