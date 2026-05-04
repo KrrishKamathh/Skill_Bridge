@@ -62,7 +62,7 @@ export default async function ProfilePage() {
 
         <div className="mb-20 flex flex-col md:flex-row items-start md:items-end gap-10">
           <div className="w-32 h-32 rounded-[2.5rem] bg-[#2d2013] text-[#fdf6e3] flex items-center justify-center text-4xl font-black shadow-2xl border-4 border-white">
-            {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+            {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 pb-2">
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none">Settings <span className="text-[#cb4b16]">&amp;</span> Identity</h1>
@@ -79,7 +79,7 @@ export default async function ProfilePage() {
         <main>
           <ProfileForm 
             initialName={user.name || ''} 
-            initialEmail={user.email}
+            initialEmail={user.email || ''}
             role={role}
             initialBio={student?.bio || ''}
             initialCompany={initialCompany}
