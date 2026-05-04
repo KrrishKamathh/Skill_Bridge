@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json();
-    const userId = session.user.id;
-    const userRole = session.user.role;
+    const userId = (session.user as any).id;
+    const userRole = (session.user as any).role;
 
     if (userRole === "STUDENT") {
       await prisma.studentProfile.upsert({
