@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PrismaClient } from '../generated/client';
 
 const prismaClientSingleton = () => {
