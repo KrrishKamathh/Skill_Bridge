@@ -33,7 +33,7 @@ export default async function ProfilePage() {
   const initialProjects = (student?.projects || []).map(p => ({
     ...p,
     description: p.description || "",
-    url: p.url || ""
+    url: (p as any).githubUrl || ""
   }));
 
   const initialEducation: any[] = [];
