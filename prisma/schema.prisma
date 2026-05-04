@@ -3,138 +3,122 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  STUDENT
-  RECRUITER
-  ADMIN
-}
-
+// Note: SQLite doesn't support Enums natively, so we use Strings
 model User {
   id               String            @id @default(cuid())
   name             String?
-  email            String            @unique
-  password         String
-  role             Role              @default(STUDENT)
-  githubUrl        String?           // Career Hub
-  linkedinUrl      String?           // Career Hub
-  twitterUrl       String?           // Career Hub
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  email            String?           @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  role             String            @default("STUDENT") // "STUDENT", "RECRUITER", or "ADMIN"
+  
+  // Private Credentials (Admin/Owner only)
+  privatePhone     String?
+  idVerification   String?           // Link to ID or Verification status
+  
+  accounts         Account[]
+  sessions         Session[]
   studentProfile   StudentProfile?
   recruiterProfile RecruiterProfile?
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model StudentProfile {
-  id           String        @id @default(cuid())
-  userId       String        @unique
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bio          String?
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Deep details
+  dob          DateTime?
+  school       String?
+  college      String?
+  achievements String?   // Stored as text/markdown
   resumeUrl    String?
-  skills       Skill[]
-  applications Application[]
-  education    Education[]
-  experience   Experience[]
-  projects     Project[]     // Portfolio
-  certificates Certificate[]
-  achievements String[]      // Accomplishments
-  preferences  Json?         // Job Preferences
-}
-
-model RecruiterProfile {
-  id      String  @id @default(cuid())
-  userId  String  @unique
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company String?
-  jobs    Job[]
-}
-
-model Job {
-  id           String           @id @default(cuid())
-  title        String
-  description  String
-  requirements String
-  location     String?
-  salary       String?
-  recruiterId  String
-  recruiter    RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
-  skills       Skill[]
-  applications Application[]
-  createdAt    DateTime         @default(now())
-}
-
-model Skill {
-  id       String           @id @default(cuid())
-  name     String           @unique
-  students StudentProfile[]
-  jobs     Job[]
-}
-
-model Application {
-  id        String         @id @default(cuid())
-  jobId     String
-  job       Job            @relation(fields: [jobId], references: [id])
-  studentId String
-  student   StudentProfile @relation(fields: [studentId], references: [id])
-  status    String         @default("PENDING")
-  summary   String?
-  createdAt DateTime       @default(now())
-}
-
-model Course {
-  id          String  @id @default(cuid())
-  title       String
-  description String
-  url         String
-  price       Float   @default(0)
-  platform    String?
-  category    String?
-}
-
-model Education {
-  id        String         @id @default(cuid())
-  studentId String
-  student   StudentProfile @relation(fields: [studentId], references: [id])
-  school    String
-  degree    String
-  year      String
-  gpa       String?        // For Career Hub
-}
-
-model Experience {
-  id          String         @id @default(cuid())
-  studentId   String
-  student     StudentProfile @relation(fields: [studentId], references: [id])
-  company     String
-  position    String
-  duration    String
-  description String?
+  
+  projects     Project[]
 }
 
 model Project {
   id               String         @id @default(cuid())
-  title            String
-  description      String?        @db.Text
-  url              String?        // Project/GitHub link
-  techStack        String[]       // Technologies used
   studentProfileId String
   studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  title            String
+  description      String?
+  githubUrl        String?
+  liveUrl          String?
+  evidenceLink     String?        // Critical for evidence-based hiring
 }
 
-model Certificate {
-  id        String         @id @default(cuid())
-  studentId String
-  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  title     String
-  issuer    String
-  url       String?        // Existing general URL
-  proofUrl  String?        // New proof image URL
-  verified  Boolean        @default(false)
-  year      String?
+model RecruiterProfile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Public Bio
+  companyName String?
+  designation String?
+  publicBio   String?
+  
+  jobs        Job[]
+}
+
+model Job {
+  id                 String           @id @default(cuid())
+  recruiterProfileId String
+  recruiterProfile   RecruiterProfile @relation(fields: [recruiterProfileId], references: [id], onDelete: Cascade)
+  
+  title              String
+  description        String?
+  location           String?
+  jobType            String           @default("Full-time") // Full-time, Internship, etc.
+  isActive           Boolean          @default(true)
+  
+  createdAt          DateTime         @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

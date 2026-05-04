@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Upload, CheckCircle2, FileText, X, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface FileUploaderProps {
   label: string;
@@ -28,20 +30,11 @@ export default function FileUploader({ label, accept, onUploadComplete, initialU
     setUploading(true);
     setProgress(0);
 
-    // Simulate upload progress
     const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) {
-          clearInterval(interval);
-          return 95;
-        }
-        return prev + 5;
-      });
+      setProgress((prev) => (prev >= 95 ? 95 : prev + 5));
     }, 100);
 
     try {
-      // In a real app, you'd use something like UploadThing or Vercel Blob
-      // For now, we'll simulate a successful upload and return a mock URL
       const formData = new FormData();
       formData.append("file", fileToUpload);
 
@@ -52,9 +45,8 @@ export default function FileUploader({ label, accept, onUploadComplete, initialU
 
       if (res.ok) {
         const data = await res.json();
-        const url = data.url;
-        setCurrentUrl(url);
-        onUploadComplete(url);
+        setCurrentUrl(data.url);
+        onUploadComplete(data.url);
         setProgress(100);
       } else {
         throw new Error("Upload failed");
@@ -69,14 +61,14 @@ export default function FileUploader({ label, accept, onUploadComplete, initialU
   };
 
   return (
-    <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-300">{label}</label>
+    <div className="space-y-4">
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7a6040] ml-1">{label}</label>
       
       <div 
-        onClick={() => fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-2xl p-6 transition-all cursor-pointer group flex flex-col items-center justify-center gap-3
-          ${uploading ? "border-blue-500/50 bg-blue-500/5" : "border-white/10 hover:border-blue-500/30 hover:bg-white/5"}
-          ${currentUrl ? "border-green-500/30 bg-green-500/5" : ""}
+        onClick={() => !uploading && fileInputRef.current?.click()}
+        className={`relative border-2 border-dashed rounded-2xl p-8 transition-all cursor-pointer group flex flex-col items-center justify-center gap-4
+          ${uploading ? "border-[#cb4b16]/50 bg-[#cb4b16]/5" : "border-[#cfc3a0] bg-[#eee8d5]/20 hover:border-[#cb4b16] hover:bg-[#fdf6e3]"}
+          ${currentUrl ? "border-[#2aa198]/30 bg-[#2aa198]/5" : ""}
         `}
       >
         <input 
@@ -89,42 +81,48 @@ export default function FileUploader({ label, accept, onUploadComplete, initialU
 
         {!uploading && !currentUrl && (
           <>
-            <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div className="w-12 h-12 rounded-2xl bg-white border border-[#cfc3a0] flex items-center justify-center text-[#cb4b16] shadow-sm group-hover:scale-105 transition-transform">
+              <Upload className="w-6 h-6" />
             </div>
-            <p className="text-sm font-medium text-slate-300">Click to upload or drag and drop</p>
-            <p className="text-xs text-slate-500 uppercase tracking-tighter">PDF or DOCX (MAX. 5MB)</p>
+            <div className="text-center">
+              <p className="text-sm font-bold text-[#2d2013]">Click to upload or drag and drop</p>
+              <p className="text-[10px] text-[#7a6040] uppercase tracking-widest font-black mt-1">PDF / DOCX (MAX. 5MB)</p>
+            </div>
           </>
         )}
 
         {uploading && (
-          <div className="w-full max-w-[200px] flex flex-col items-center gap-3">
-            <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-blue-600 transition-all duration-300" 
-                style={{ width: `${progress}%` }}
+          <div className="w-full max-w-[240px] flex flex-col items-center gap-4 py-2">
+            <div className="w-full h-2 bg-[#eee8d5] rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                className="h-full bg-[#cb4b16]" 
               />
             </div>
-            <p className="text-xs font-bold text-blue-400 animate-pulse uppercase tracking-widest">Uploading... {progress}%</p>
+            <div className="flex items-center gap-2 text-xs font-black text-[#cb4b16] uppercase tracking-widest animate-pulse">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Compressing &amp; Indexing... {progress}%
+            </div>
           </div>
         )}
 
         {!uploading && currentUrl && (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-green-600/20 flex items-center justify-center text-green-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <div className="flex items-center gap-6 w-full max-w-md bg-white p-4 rounded-xl shadow-sm border border-[#cfc3a0]">
+            <div className="w-10 h-10 rounded-lg bg-[#2aa198]/10 flex items-center justify-center text-[#2aa198]">
+              <FileText className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-white">File Uploaded!</p>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-bold text-[#2d2013] truncate">Resume_Verified.pdf</p>
               <button 
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(currentUrl, '_blank');
                 }}
-                className="text-xs text-blue-400 hover:underline"
+                className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest hover:underline mt-0.5"
               >
-                View Current Resume
+                Inspect Original
               </button>
             </div>
             <button 
@@ -134,9 +132,9 @@ export default function FileUploader({ label, accept, onUploadComplete, initialU
                 setCurrentUrl("");
                 onUploadComplete("");
               }}
-              className="ml-4 p-1.5 hover:bg-red-500/10 rounded-lg text-slate-500 hover:text-red-400 transition-all"
+              className="p-2 hover:bg-[#cb4b16]/10 rounded-lg text-[#b5a080] hover:text-[#cb4b16] transition-all"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              <X className="w-5 h-5" />
             </button>
           </div>
         )}

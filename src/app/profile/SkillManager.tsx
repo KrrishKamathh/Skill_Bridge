@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X, Sparkles } from "lucide-react";
 
 interface SkillManagerProps {
   initialSkills: string[];
@@ -31,26 +32,29 @@ export default function SkillManager({ initialSkills, onChange }: SkillManagerPr
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-slate-300">Skills & Expertise</label>
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles className="w-3.5 h-3.5 text-[#cb4b16]" />
+        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7a6040]">Skills &amp; Expertise</label>
+      </div>
       
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap gap-2 mb-4">
         {skills.map((skill) => (
           <span 
             key={skill} 
-            className="px-3 py-1.5 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-100 text-sm flex items-center gap-2 group animate-fade-in"
+            className="px-3 py-1.5 rounded-lg bg-[#eee8d5] border border-[#cfc3a0] text-[#2d2013] text-[10px] font-black uppercase tracking-wider flex items-center gap-2 group transition-all hover:bg-[#cfc3a0]/30"
           >
             {skill}
             <button 
               type="button"
               onClick={() => removeSkill(skill)}
-              className="text-blue-400 hover:text-white transition-colors"
+              className="text-[#b5a080] hover:text-[#cb4b16] transition-colors"
             >
-              ×
+              <X className="w-3 h-3" />
             </button>
           </span>
         ))}
         {skills.length === 0 && (
-          <p className="text-slate-500 text-sm italic">No skills added yet. Type below and press Enter.</p>
+          <p className="text-[#b5a080] text-[10px] font-bold italic tracking-wide">No skills indexed yet.</p>
         )}
       </div>
 
@@ -59,8 +63,8 @@ export default function SkillManager({ initialSkills, onChange }: SkillManagerPr
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleAddSkill}
-        placeholder="Add a skill (e.g. React, Python) and press Enter"
-        className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+        placeholder="Type a skill and press Enter..."
+        className="w-full px-6 py-4 rounded-xl bg-[#eee8d5]/40 border border-[#cfc3a0] text-[#2d2013] placeholder:text-[#b5a080] focus:outline-none focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-medium"
       />
     </div>
   );

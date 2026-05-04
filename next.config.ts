@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  allowedDevOrigins: ['192.168.0.6', 'localhost:3000'],
+  // We removed the distDir hack because it doesn't work across different drives in this version
 };
 
 export default nextConfig;

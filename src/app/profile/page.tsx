@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import ProfileForm from "./ProfileForm";
 import prisma from "@/lib/prisma";
+import { ArrowLeft, Shield } from "lucide-react";
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
@@ -12,7 +13,6 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  // Fetch the absolute newest user data directly from the DB with associated profiles
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
@@ -63,31 +63,46 @@ export default async function ProfilePage() {
   const role = user.role;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 p-6 md:p-12 font-sans selection:bg-blue-500/30 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto space-y-10">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-10">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-3xl font-black border border-white/10 shadow-2xl shadow-blue-500/20 text-white transform hover:rotate-6 transition-transform cursor-default">
-              {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter text-white">Profile Settings</h1>
-              <p className="text-slate-500 mt-1 font-medium flex items-center gap-2">
-                <svg className="w-4 h-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                {user.email} • {role === 'RECRUITER' ? 'Recruiter' : 'Student'} Profile
-              </p>
-            </div>
-          </div>
-          <Link href="/dashboard" className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 rounded-2xl transition-all active:scale-95 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            Dashboard
+    <div className="min-h-screen bg-[#fdf6e3] text-[#2d2013] selection:bg-[#cb4b16]/20 relative overflow-x-hidden p-6 md:p-12 lg:p-16">
+      
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#cb4b16]/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        
+        {/* Navigation */}
+        <header className="flex justify-between items-center mb-16">
+          <Link href="/dashboard" className="flex items-center gap-2 text-[#7a6040] hover:text-[#2d2013] transition-colors font-bold text-sm group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Dashboard
           </Link>
+          
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-[#cb4b16] flex items-center justify-center">
+              <div className="w-2 h-2 bg-[#fdf6e3] rounded-full" />
+            </div>
+            <span className="font-bold text-sm tracking-tighter uppercase font-black">SkillBridge Registry</span>
+          </div>
         </header>
 
-        <main className="relative">
-          {/* Background Decorative Blur */}
-          <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-          
+        {/* Hero Section */}
+        <div className="mb-20 flex flex-col md:flex-row items-start md:items-end gap-10">
+          <div className="w-32 h-32 rounded-[2.5rem] bg-[#2d2013] text-[#fdf6e3] flex items-center justify-center text-4xl font-black shadow-2xl border-4 border-white">
+            {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1 pb-2">
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none">Settings <span className="text-[#cb4b16]">&amp;</span> Identity</h1>
+            <div className="flex flex-wrap items-center gap-4 text-[#7a6040] font-bold text-xs uppercase tracking-widest">
+              <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-[#2aa198]" /> {user.email}</span>
+              <span className="w-1 h-1 bg-[#cfc3a0] rounded-full" />
+              <span>{role} Profile</span>
+              <span className="w-1 h-1 bg-[#cfc3a0] rounded-full" />
+              <span>Member since {new Date(user.createdAt).getFullYear()}</span>
+            </div>
+          </div>
+        </div>
+
+        <main>
           <ProfileForm 
             initialName={user.name || ''} 
             initialEmail={user.email}
@@ -110,8 +125,10 @@ export default async function ProfilePage() {
           />
         </main>
         
-        <footer className="pt-10 border-t border-white/5 text-center text-[10px] text-slate-700 font-bold uppercase tracking-[0.3em]">
-          SkillBridge Registry • Member since {new Date(user.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+        <footer className="mt-32 pt-12 border-t border-[#cfc3a0] text-center">
+          <p className="text-[10px] text-[#b5a080] font-black uppercase tracking-[0.4em]">
+            Verified SkillBridge Professional Identity • {new Date().getFullYear()}
+          </p>
         </footer>
       </div>
     </div>

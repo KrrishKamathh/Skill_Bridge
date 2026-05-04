@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Note: SQLite doesn't support Enums natively, so we use Strings
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("STUDENT") // "STUDENT", "RECRUITER", or "ADMIN"
+
+  // Private Credentials (Admin/Owner only)
+  privatePhone   String?
+  idVerification String? // Link to ID or Verification status
+
+  accounts         Account[]
+  sessions         Session[]
+  studentProfile   StudentProfile?
+  recruiterProfile RecruiterProfile?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StudentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Deep details
+  dob          DateTime?
+  school       String?
+  college      String?
+  achievements String? // Stored as text/markdown
+  resumeUrl    String?
+
+  projects Project[]
+}
+
+model Project {
+  id               String         @id @default(cuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+
+  title        String
+  description  String?
+  githubUrl    String?
+  liveUrl      String?
+  evidenceLink String? // Critical for evidence-based hiring
+}
+
+model RecruiterProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Public Bio
+  companyName String?
+  designation String?
+  publicBio   String?
+
+  jobs Job[]
+}
+
+model Job {
+  id                 String           @id @default(cuid())
+  recruiterProfileId String
+  recruiterProfile   RecruiterProfile @relation(fields: [recruiterProfileId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  location    String?
+  jobType     String  @default("Full-time") // Full-time, Internship, etc.
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
