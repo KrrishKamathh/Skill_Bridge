@@ -175,6 +175,14 @@ exports.Prisma.JobScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ApplicationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  jobId: 'jobId',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -225,6 +233,7 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   RecruiterProfile: 'RecruiterProfile',
   Job: 'Job',
+  Application: 'Application',
   Account: 'Account',
   Session: 'Session',
   VerificationToken: 'VerificationToken'

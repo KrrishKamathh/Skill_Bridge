@@ -30,6 +30,7 @@ model User {
   sessions         Session[]
   studentProfile   StudentProfile?
   recruiterProfile RecruiterProfile?
+  applications     Application[]
 
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -86,7 +87,21 @@ model Job {
   jobType            String           @default("Full-time") // Full-time, Internship, etc.
   isActive           Boolean          @default(true)
   
+  applications       Application[]
   createdAt          DateTime         @default(now())
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  status    String   @default("PENDING") // PENDING, SHORTLISTED, REJECTED
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
 }
 
 model Account {

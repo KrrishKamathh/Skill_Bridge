@@ -31,7 +31,7 @@ import {
   Edit3
 } from "lucide-react";
 
-type DashboardTab = "overview" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
+type DashboardTab = "overview" | "marketplace" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -87,7 +87,34 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => { fetchProfile(); }, [session]);
+  const [marketplaceJobs, setMarketplaceJobs] = useState<any[]>([]);
+
+  const fetchMarketplace = async () => {
+    try {
+      const res = await fetch("/api/jobs/marketplace");
+      const data = await res.json();
+      setMarketplaceJobs(data);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleApply = async (jobId: string) => {
+    try {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId })
+      });
+      if (res.ok) {
+        alert("Application sent successfully!");
+        fetchMarketplace();
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  useEffect(() => { 
+    fetchProfile(); 
+    if (userRole === "STUDENT") fetchMarketplace();
+  }, [session]);
 
   const handleUpdate = async (data: any) => {
     setSaveLoading(true);
@@ -140,6 +167,7 @@ export default function Dashboard() {
         </div>
         <nav className="space-y-1 flex-1">
           <NavItem icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+          {userRole === "STUDENT" && <NavItem icon={<Globe className="w-4 h-4" />} label="Marketplace" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />}
           <div className="pt-4 pb-2">
             <p className="text-[10px] font-black text-[#7a6040] uppercase tracking-widest px-4 mb-2">{userRole === "STUDENT" ? "Build Profile" : "Company Profile"}</p>
             {userRole === "STUDENT" ? (
@@ -178,6 +206,37 @@ export default function Dashboard() {
                     <div className="absolute top-0 right-0 p-8 opacity-10"><Sparkles className="w-32 h-32 rotate-12" /></div>
                     <div className="relative z-10"><h2 className="text-3xl font-black tracking-tighter mb-4 leading-tight">Welcome back.</h2><p className="text-[#eee8d5]/80 text-sm max-w-md leading-relaxed font-light">{userRole === "STUDENT" ? "Portfolio Verified." : `Hiring mode active for ${recruiterData.companyName || "your organization"}.`}</p></div>
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "marketplace" && (
+              <motion.div key="marketplace" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {marketplaceJobs.map((job) => (
+                    <div key={job.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2rem] shadow-sm hover:shadow-xl transition-all group flex flex-col">
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="p-3 rounded-2xl bg-[#cb4b16]/10 text-[#cb4b16]"><Building className="w-6 h-6" /></div>
+                          <span className="text-[10px] font-black bg-[#2d2013] text-[#fdf6e3] px-3 py-1 rounded-full uppercase tracking-tighter">{job.jobType}</span>
+                        </div>
+                        <h3 className="text-xl font-black mb-1">{job.title}</h3>
+                        <p className="text-xs font-bold text-[#cb4b16] mb-4 uppercase tracking-tight">{job.recruiterProfile?.companyName || "Organization"}</p>
+                        <div className="flex items-center gap-4 text-[10px] text-[#7a6040] font-black mb-6">
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {job.location}</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Just Posted</span>
+                        </div>
+                        <p className="text-xs text-[#7a6040] leading-relaxed line-clamp-3 mb-6">{job.description}</p>
+                      </div>
+                      <button 
+                        onClick={() => !job.applications.length && handleApply(job.id)}
+                        disabled={job.applications.length > 0}
+                        className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${job.applications.length > 0 ? 'bg-[#cfc3a0] text-[#7a6040] cursor-not-allowed' : 'bg-[#cb4b16] text-white hover:scale-[1.02] shadow-lg'}`}
+                      >
+                        {job.applications.length > 0 ? "Application Sent" : "Quick Apply"}
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             )}
