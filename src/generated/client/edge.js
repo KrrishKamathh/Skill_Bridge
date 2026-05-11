@@ -84,6 +84,9 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -173,6 +176,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
@@ -227,7 +235,7 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "sqlite",
+  "activeProvider": "postgresql",
   "inlineDatasources": {
     "db": {
       "url": {
@@ -236,8 +244,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// Note: SQLite doesn't support Enums natively, so we use Strings\nmodel User {\n  id            String    @id @default(cuid())\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  password      String?\n  role          String    @default(\"STUDENT\") // \"STUDENT\", \"RECRUITER\", or \"ADMIN\"\n\n  // Private Credentials (Admin/Owner only)\n  privatePhone   String?\n  idVerification String? // Link to ID or Verification status\n\n  accounts         Account[]\n  sessions         Session[]\n  studentProfile   StudentProfile?\n  recruiterProfile RecruiterProfile?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel StudentProfile {\n  id     String @id @default(cuid())\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Deep details\n  dob          DateTime?\n  school       String?\n  college      String?\n  achievements String? // Stored as text/markdown\n  resumeUrl    String?\n\n  projects Project[]\n}\n\nmodel Project {\n  id               String         @id @default(cuid())\n  studentProfileId String\n  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)\n\n  title        String\n  description  String?\n  githubUrl    String?\n  liveUrl      String?\n  evidenceLink String? // Critical for evidence-based hiring\n}\n\nmodel RecruiterProfile {\n  id     String @id @default(cuid())\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Public Bio\n  companyName String?\n  designation String?\n  publicBio   String?\n\n  jobs Job[]\n}\n\nmodel Job {\n  id                 String           @id @default(cuid())\n  recruiterProfileId String\n  recruiterProfile   RecruiterProfile @relation(fields: [recruiterProfileId], references: [id], onDelete: Cascade)\n\n  title       String\n  description String?\n  location    String?\n  jobType     String  @default(\"Full-time\") // Full-time, Internship, etc.\n  isActive    Boolean @default(true)\n\n  createdAt DateTime @default(now())\n}\n\nmodel Account {\n  id                String  @id @default(cuid())\n  userId            String\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String?\n  access_token      String?\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String?\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique\n  userId       String\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n}\n",
-  "inlineSchemaHash": "0af799015c0779089170e09fad8008ea7e525e29ce8e1f40423649f5e5fed17e",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DATABASE_URL_UNPOOLED\")\n}\n\n// Note: SQLite doesn't support Enums natively, so we use Strings\nmodel User {\n  id            String    @id @default(cuid())\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  password      String?\n  role          String    @default(\"STUDENT\") // \"STUDENT\", \"RECRUITER\", or \"ADMIN\"\n\n  // Private Credentials (Admin/Owner only)\n  privatePhone   String?\n  idVerification String? // Link to ID or Verification status\n\n  accounts         Account[]\n  sessions         Session[]\n  studentProfile   StudentProfile?\n  recruiterProfile RecruiterProfile?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel StudentProfile {\n  id     String @id @default(cuid())\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Deep details\n  dob          DateTime?\n  school       String?\n  college      String?\n  achievements String? // Stored as text/markdown\n  resumeUrl    String?\n\n  projects Project[]\n}\n\nmodel Project {\n  id               String         @id @default(cuid())\n  studentProfileId String\n  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)\n\n  title        String\n  description  String?\n  githubUrl    String?\n  liveUrl      String?\n  evidenceLink String? // Critical for evidence-based hiring\n}\n\nmodel RecruiterProfile {\n  id     String @id @default(cuid())\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Public Bio\n  companyName String?\n  designation String?\n  publicBio   String?\n\n  jobs Job[]\n}\n\nmodel Job {\n  id                 String           @id @default(cuid())\n  recruiterProfileId String\n  recruiterProfile   RecruiterProfile @relation(fields: [recruiterProfileId], references: [id], onDelete: Cascade)\n\n  title       String\n  description String?\n  location    String?\n  jobType     String  @default(\"Full-time\") // Full-time, Internship, etc.\n  isActive    Boolean @default(true)\n\n  createdAt DateTime @default(now())\n}\n\nmodel Account {\n  id                String  @id @default(cuid())\n  userId            String\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String?\n  access_token      String?\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String?\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique\n  userId       String\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n}\n",
+  "inlineSchemaHash": "04ba27625ca6347c2e05eb430a1603dc8987e16081799d283754d6a14a16a64e",
   "copyEngine": true
 }
 config.dirname = '/'
