@@ -58,8 +58,16 @@ export default function Dashboard() {
         const res = await fetch("/api/user/profile");
         const data = await res.json();
         
-        // If user has NO student or recruiter profile, they aren't onboarded!
+        // If they have a profile but haven't filled in the key info (College or Company), send them to onboarding!
+        const isStudentEmpty = data.studentProfile && !data.studentProfile.college;
+        const isRecruiterEmpty = data.recruiterProfile && !data.recruiterProfile.companyName;
+
         if (!data.studentProfile && !data.recruiterProfile) {
+          router.push("/onboarding");
+          return;
+        }
+
+        if (isStudentEmpty || isRecruiterEmpty) {
           router.push("/onboarding");
           return;
         }
