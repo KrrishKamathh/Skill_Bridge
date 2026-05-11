@@ -228,7 +228,30 @@ export default function Dashboard() {
               </motion.div>
             )}
             
-            {/* Student tabs (Personal, Qualifications, Portfolio) follow same pattern... */}
+            {userRole === "STUDENT" && activeTab === "personal" && (
+              <motion.div key="personal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 md:p-12 shadow-sm">
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Birth Date</label><input type="date" value={personalData.dob} onChange={(e) => setPersonalData({...personalData, dob: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Location</label><input type="text" value={personalData.location} onChange={(e) => setPersonalData({...personalData, location: e.target.value})} placeholder="City, Country" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
+                  </div>
+                  <button onClick={() => handleUpdate(personalData)} disabled={saveLoading} className="bg-[#2d2013] text-[#fdf6e3] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Save Personal Info</button>
+                </div>
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "qualifications" && (
+              <motion.div key="qualifications" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 md:p-12 shadow-sm">
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Current College/University</label><input type="text" value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Previous School</label><input type="text" value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
+                  </div>
+                  <button onClick={() => handleUpdate(qualData)} disabled={saveLoading} className="bg-[#2d2013] text-[#fdf6e3] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Save Qualifications</button>
+                </div>
+              </motion.div>
+            )}
+            
             {userRole === "STUDENT" && activeTab === "portfolio" && (
               <motion.div key="portfolio" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -239,7 +262,14 @@ export default function Dashboard() {
                     </div>
                   ))}
                 </div>
-                {/* ... project form ... */}
+                <div className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 md:p-12 shadow-sm">
+                  <h3 className="text-xl font-black tracking-tight mb-8">Add New Project</h3>
+                  <div className="space-y-4">
+                    <input type="text" value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} placeholder="Project Title" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                    <textarea rows={3} value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} placeholder="Project Description..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold resize-none" />
+                    <button onClick={() => handleUpdate({ projects: [newProject] })} disabled={saveLoading} className="w-full bg-[#cb4b16] text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl">Add Project</button>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
