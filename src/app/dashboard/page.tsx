@@ -31,7 +31,7 @@ import {
   Edit3
 } from "lucide-react";
 
-type DashboardTab = "overview" | "marketplace" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
+type DashboardTab = "overview" | "marketplace" | "applications" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -111,9 +111,22 @@ export default function Dashboard() {
     } catch (e) { console.error(e); }
   };
 
+  const [myApplications, setMyApplications] = useState<any[]>([]);
+
+  const fetchMyApplications = async () => {
+    try {
+      const res = await fetch("/api/applications/my");
+      const data = await res.json();
+      setMyApplications(data);
+    } catch (e) { console.error(e); }
+  };
+
   useEffect(() => { 
     fetchProfile(); 
-    if (userRole === "STUDENT") fetchMarketplace();
+    if (userRole === "STUDENT") {
+      fetchMarketplace();
+      fetchMyApplications();
+    }
   }, [session]);
 
   const handleUpdate = async (data: any) => {
@@ -134,6 +147,19 @@ export default function Dashboard() {
       const data = await res.json();
       setApplicants(data);
       setSelectedJob(jobId);
+    } catch (e) { console.error(e); }
+  };
+
+  const updateApplicationStatus = async (appId: string, status: string) => {
+    try {
+      const res = await fetch(`/api/applications/${appId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        fetchApplicants(selectedJob);
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -179,7 +205,12 @@ export default function Dashboard() {
         </div>
         <nav className="space-y-1 flex-1">
           <NavItem icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
-          {userRole === "STUDENT" && <NavItem icon={<Globe className="w-4 h-4" />} label="Marketplace" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />}
+          {userRole === "STUDENT" && (
+            <>
+              <NavItem icon={<Globe className="w-4 h-4" />} label="Marketplace" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />
+              <NavItem icon={<FileText className="w-4 h-4" />} label="My Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} />
+            </>
+          )}
           <div className="pt-4 pb-2">
             <p className="text-[10px] font-black text-[#7a6040] uppercase tracking-widest px-4 mb-2">{userRole === "STUDENT" ? "Build Profile" : "Company Profile"}</p>
             {userRole === "STUDENT" ? (
@@ -253,6 +284,38 @@ export default function Dashboard() {
               </motion.div>
             )}
 
+            {userRole === "STUDENT" && activeTab === "applications" && (
+              <motion.div key="applications" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                {myApplications.length === 0 ? (
+                  <div className="text-center py-20 bg-white/40 border border-[#cfc3a0] rounded-[2.5rem]">
+                    <p className="font-bold text-[#7a6040]">You haven't applied to any jobs yet.</p>
+                  </div>
+                ) : (
+                  myApplications.map((app) => (
+                    <div key={app.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl flex items-center justify-between group hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black"><Briefcase className="w-6 h-6" /></div>
+                        <div>
+                          <h4 className="font-black text-lg">{app.job.title}</h4>
+                          <p className="text-xs font-bold text-[#cb4b16] uppercase tracking-tight">{app.job.recruiterProfile?.companyName}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-block px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                          app.status === "SHORTLISTED" ? "bg-green-500 text-white shadow-lg" : 
+                          app.status === "REJECTED" ? "bg-red-500 text-white" : 
+                          "bg-[#cb4b16] text-white"
+                        }`}>
+                          {app.status}
+                        </span>
+                        <p className="text-[10px] text-[#7a6040] mt-2 font-bold">{new Date(app.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </motion.div>
+            )}
+
             {/* RECRUITER LISTINGS TAB */}
             {userRole === "RECRUITER" && activeTab === "listings" && (
               <motion.div key="listings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
@@ -286,9 +349,17 @@ export default function Dashboard() {
                             <div key={app.id} className="p-4 bg-white/60 border border-[#cfc3a0] rounded-2xl flex items-center justify-between">
                               <div>
                                 <p className="font-bold text-[#2d2013]">{app.user.name}</p>
-                                <p className="text-[10px] text-[#cb4b16] font-black uppercase">{app.user.studentProfile?.college || "In-complete Profile"}</p>
+                                <p className="text-[10px] text-[#cb4b16] font-black uppercase tracking-tighter">{app.status}</p>
                               </div>
-                              <button onClick={() => alert("Profile View coming soon!")} className="p-3 rounded-xl bg-[#cb4b16]/10 text-[#cb4b16] hover:bg-[#cb4b16] hover:text-white transition-all"><UserIcon className="w-4 h-4" /></button>
+                              <div className="flex gap-2 items-center">
+                                {app.status === "PENDING" && (
+                                  <>
+                                    <button onClick={() => updateApplicationStatus(app.id, "SHORTLISTED")} className="px-3 py-1.5 rounded-lg bg-green-500/10 text-green-600 hover:bg-green-600 hover:text-white transition-all text-[8px] font-black uppercase">Shortlist</button>
+                                    <button onClick={() => updateApplicationStatus(app.id, "REJECTED")} className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-600 hover:bg-red-600 hover:text-white transition-all text-[8px] font-black uppercase">Reject</button>
+                                  </>
+                                )}
+                                <button onClick={() => alert("Full Profile Viewer coming in next update!")} className="p-2 rounded-lg bg-[#cb4b16]/10 text-[#cb4b16] hover:bg-[#cb4b16] hover:text-white transition-all"><UserIcon className="w-4 h-4" /></button>
+                              </div>
                             </div>
                           ))
                         )}
