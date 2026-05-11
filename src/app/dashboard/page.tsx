@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
@@ -49,11 +50,20 @@ export default function Dashboard() {
 
   const userRole = (session?.user as any)?.role || "STUDENT";
 
+  const router = useRouter();
+
   const fetchProfile = async () => {
     if (session?.user?.email) {
       try {
         const res = await fetch("/api/user/profile");
         const data = await res.json();
+        
+        // If user has NO student or recruiter profile, they aren't onboarded!
+        if (!data.studentProfile && !data.recruiterProfile) {
+          router.push("/onboarding");
+          return;
+        }
+
         setUserData(data);
         if (data.studentProfile) {
           setPersonalData({ dob: data.studentProfile.dob?.split('T')[0] || "", location: data.studentProfile.location || "" });
