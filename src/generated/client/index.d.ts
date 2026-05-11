@@ -2796,6 +2796,8 @@ export namespace Prisma {
     college: string | null
     achievements: string | null
     resumeUrl: string | null
+    location: string | null
+    bio: string | null
   }
 
   export type StudentProfileMaxAggregateOutputType = {
@@ -2806,6 +2808,8 @@ export namespace Prisma {
     college: string | null
     achievements: string | null
     resumeUrl: string | null
+    location: string | null
+    bio: string | null
   }
 
   export type StudentProfileCountAggregateOutputType = {
@@ -2816,6 +2820,8 @@ export namespace Prisma {
     college: number
     achievements: number
     resumeUrl: number
+    location: number
+    bio: number
     _all: number
   }
 
@@ -2828,6 +2834,8 @@ export namespace Prisma {
     college?: true
     achievements?: true
     resumeUrl?: true
+    location?: true
+    bio?: true
   }
 
   export type StudentProfileMaxAggregateInputType = {
@@ -2838,6 +2846,8 @@ export namespace Prisma {
     college?: true
     achievements?: true
     resumeUrl?: true
+    location?: true
+    bio?: true
   }
 
   export type StudentProfileCountAggregateInputType = {
@@ -2848,6 +2858,8 @@ export namespace Prisma {
     college?: true
     achievements?: true
     resumeUrl?: true
+    location?: true
+    bio?: true
     _all?: true
   }
 
@@ -2931,6 +2943,8 @@ export namespace Prisma {
     college: string | null
     achievements: string | null
     resumeUrl: string | null
+    location: string | null
+    bio: string | null
     _count: StudentProfileCountAggregateOutputType | null
     _min: StudentProfileMinAggregateOutputType | null
     _max: StudentProfileMaxAggregateOutputType | null
@@ -2958,6 +2972,8 @@ export namespace Prisma {
     college?: boolean
     achievements?: boolean
     resumeUrl?: boolean
+    location?: boolean
+    bio?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     projects?: boolean | StudentProfile$projectsArgs<ExtArgs>
     _count?: boolean | StudentProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -2971,6 +2987,8 @@ export namespace Prisma {
     college?: boolean
     achievements?: boolean
     resumeUrl?: boolean
+    location?: boolean
+    bio?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["studentProfile"]>
 
@@ -2982,6 +3000,8 @@ export namespace Prisma {
     college?: boolean
     achievements?: boolean
     resumeUrl?: boolean
+    location?: boolean
+    bio?: boolean
   }
 
   export type StudentProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3007,6 +3027,8 @@ export namespace Prisma {
       college: string | null
       achievements: string | null
       resumeUrl: string | null
+      location: string | null
+      bio: string | null
     }, ExtArgs["result"]["studentProfile"]>
     composites: {}
   }
@@ -3409,6 +3431,8 @@ export namespace Prisma {
     readonly college: FieldRef<"StudentProfile", 'String'>
     readonly achievements: FieldRef<"StudentProfile", 'String'>
     readonly resumeUrl: FieldRef<"StudentProfile", 'String'>
+    readonly location: FieldRef<"StudentProfile", 'String'>
+    readonly bio: FieldRef<"StudentProfile", 'String'>
   }
     
 
@@ -10475,7 +10499,9 @@ export namespace Prisma {
     school: 'school',
     college: 'college',
     achievements: 'achievements',
-    resumeUrl: 'resumeUrl'
+    resumeUrl: 'resumeUrl',
+    location: 'location',
+    bio: 'bio'
   };
 
   export type StudentProfileScalarFieldEnum = (typeof StudentProfileScalarFieldEnum)[keyof typeof StudentProfileScalarFieldEnum]
@@ -10770,6 +10796,8 @@ export namespace Prisma {
     college?: StringNullableFilter<"StudentProfile"> | string | null
     achievements?: StringNullableFilter<"StudentProfile"> | string | null
     resumeUrl?: StringNullableFilter<"StudentProfile"> | string | null
+    location?: StringNullableFilter<"StudentProfile"> | string | null
+    bio?: StringNullableFilter<"StudentProfile"> | string | null
     user?: XOR<UserRelationFilter, UserWhereInput>
     projects?: ProjectListRelationFilter
   }
@@ -10782,6 +10810,8 @@ export namespace Prisma {
     college?: SortOrderInput | SortOrder
     achievements?: SortOrderInput | SortOrder
     resumeUrl?: SortOrderInput | SortOrder
+    location?: SortOrderInput | SortOrder
+    bio?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     projects?: ProjectOrderByRelationAggregateInput
   }
@@ -10797,6 +10827,8 @@ export namespace Prisma {
     college?: StringNullableFilter<"StudentProfile"> | string | null
     achievements?: StringNullableFilter<"StudentProfile"> | string | null
     resumeUrl?: StringNullableFilter<"StudentProfile"> | string | null
+    location?: StringNullableFilter<"StudentProfile"> | string | null
+    bio?: StringNullableFilter<"StudentProfile"> | string | null
     user?: XOR<UserRelationFilter, UserWhereInput>
     projects?: ProjectListRelationFilter
   }, "id" | "userId">
@@ -10809,6 +10841,8 @@ export namespace Prisma {
     college?: SortOrderInput | SortOrder
     achievements?: SortOrderInput | SortOrder
     resumeUrl?: SortOrderInput | SortOrder
+    location?: SortOrderInput | SortOrder
+    bio?: SortOrderInput | SortOrder
     _count?: StudentProfileCountOrderByAggregateInput
     _max?: StudentProfileMaxOrderByAggregateInput
     _min?: StudentProfileMinOrderByAggregateInput
@@ -10825,6 +10859,8 @@ export namespace Prisma {
     college?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
     achievements?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
     resumeUrl?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
+    location?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
+    bio?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
   }
 
   export type ProjectWhereInput = {
@@ -11393,6 +11429,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
     user: UserCreateNestedOneWithoutStudentProfileInput
     projects?: ProjectCreateNestedManyWithoutStudentProfileInput
   }
@@ -11405,6 +11443,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
     projects?: ProjectUncheckedCreateNestedManyWithoutStudentProfileInput
   }
 
@@ -11415,6 +11455,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutStudentProfileNestedInput
     projects?: ProjectUpdateManyWithoutStudentProfileNestedInput
   }
@@ -11427,6 +11469,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     projects?: ProjectUncheckedUpdateManyWithoutStudentProfileNestedInput
   }
 
@@ -11438,6 +11482,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
   }
 
   export type StudentProfileUpdateManyMutationInput = {
@@ -11447,6 +11493,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentProfileUncheckedUpdateManyInput = {
@@ -11457,6 +11505,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProjectCreateInput = {
@@ -12141,6 +12191,8 @@ export namespace Prisma {
     college?: SortOrder
     achievements?: SortOrder
     resumeUrl?: SortOrder
+    location?: SortOrder
+    bio?: SortOrder
   }
 
   export type StudentProfileMaxOrderByAggregateInput = {
@@ -12151,6 +12203,8 @@ export namespace Prisma {
     college?: SortOrder
     achievements?: SortOrder
     resumeUrl?: SortOrder
+    location?: SortOrder
+    bio?: SortOrder
   }
 
   export type StudentProfileMinOrderByAggregateInput = {
@@ -12161,6 +12215,8 @@ export namespace Prisma {
     college?: SortOrder
     achievements?: SortOrder
     resumeUrl?: SortOrder
+    location?: SortOrder
+    bio?: SortOrder
   }
 
   export type StudentProfileRelationFilter = {
@@ -13143,6 +13199,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
     projects?: ProjectCreateNestedManyWithoutStudentProfileInput
   }
 
@@ -13153,6 +13211,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
     projects?: ProjectUncheckedCreateNestedManyWithoutStudentProfileInput
   }
 
@@ -13284,6 +13344,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     projects?: ProjectUpdateManyWithoutStudentProfileNestedInput
   }
 
@@ -13294,6 +13356,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     projects?: ProjectUncheckedUpdateManyWithoutStudentProfileNestedInput
   }
 
@@ -13503,6 +13567,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
     user: UserCreateNestedOneWithoutStudentProfileInput
   }
 
@@ -13514,6 +13580,8 @@ export namespace Prisma {
     college?: string | null
     achievements?: string | null
     resumeUrl?: string | null
+    location?: string | null
+    bio?: string | null
   }
 
   export type StudentProfileCreateOrConnectWithoutProjectsInput = {
@@ -13539,6 +13607,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutStudentProfileNestedInput
   }
 
@@ -13550,6 +13620,8 @@ export namespace Prisma {
     college?: NullableStringFieldUpdateOperationsInput | string | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserCreateWithoutRecruiterProfileInput = {

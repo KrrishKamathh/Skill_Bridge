@@ -47,6 +47,8 @@ model StudentProfile {
   college      String?
   achievements String? // Stored as text/markdown
   resumeUrl    String?
+  location     String?
+  bio          String?
 
   projects Project[]
 }

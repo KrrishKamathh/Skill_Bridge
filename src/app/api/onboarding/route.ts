@@ -22,6 +22,8 @@ export async function POST(req: Request) {
           school: data.school,
           college: data.college,
           achievements: data.achievements,
+          location: data.location,
+          bio: data.bio,
         },
         create: {
           userId,
@@ -29,6 +31,8 @@ export async function POST(req: Request) {
           school: data.school,
           college: data.college,
           achievements: data.achievements,
+          location: data.location,
+          bio: data.bio,
         },
       });
 

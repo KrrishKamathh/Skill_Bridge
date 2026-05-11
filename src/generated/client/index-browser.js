@@ -143,7 +143,9 @@ exports.Prisma.StudentProfileScalarFieldEnum = {
   school: 'school',
   college: 'college',
   achievements: 'achievements',
-  resumeUrl: 'resumeUrl'
+  resumeUrl: 'resumeUrl',
+  location: 'location',
+  bio: 'bio'
 };
 
 exports.Prisma.ProjectScalarFieldEnum = {
