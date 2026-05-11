@@ -125,6 +125,18 @@ export default function Dashboard() {
     } catch (e) { console.error(e); } finally { setSaveLoading(false); }
   };
 
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [applicants, setApplicants] = useState<any[]>([]);
+
+  const fetchApplicants = async (jobId: string) => {
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/applicants`);
+      const data = await res.json();
+      setApplicants(data);
+      setSelectedJob(jobId);
+    } catch (e) { console.error(e); }
+  };
+
   const handlePostJob = async () => {
     if (!newJob.title) return;
     setSaveLoading(true);
@@ -256,9 +268,34 @@ export default function Dashboard() {
                         <span className="text-[10px] text-[#7a6040] font-bold flex items-center gap-1"><MapPin className="w-3 h-3" /> {job.location}</span>
                       </div>
                       <p className="text-[10px] text-[#7a6040] line-clamp-2">{job.description}</p>
+                      <button onClick={() => fetchApplicants(job.id)} className="mt-4 w-full py-2 bg-[#2d2013] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all">View Applicants</button>
                     </div>
                   ))}
                 </div>
+
+                {selectedJob && (
+                  <div className="fixed inset-0 bg-[#2d2013]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#fdf6e3] w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl relative">
+                      <button onClick={() => setSelectedJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16]"><Plus className="w-6 h-6 rotate-45" /></button>
+                      <h3 className="text-2xl font-black mb-6">Applicants</h3>
+                      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                        {applicants.length === 0 ? (
+                          <p className="text-sm font-bold text-[#7a6040] text-center py-10">No applications yet.</p>
+                        ) : (
+                          applicants.map((app) => (
+                            <div key={app.id} className="p-4 bg-white/60 border border-[#cfc3a0] rounded-2xl flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-[#2d2013]">{app.user.name}</p>
+                                <p className="text-[10px] text-[#cb4b16] font-black uppercase">{app.user.studentProfile?.college || "In-complete Profile"}</p>
+                              </div>
+                              <button onClick={() => alert("Profile View coming soon!")} className="p-3 rounded-xl bg-[#cb4b16]/10 text-[#cb4b16] hover:bg-[#cb4b16] hover:text-white transition-all"><UserIcon className="w-4 h-4" /></button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
                 <div className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 md:p-12 shadow-sm">
                   <h3 className="text-xl font-black tracking-tight mb-8">Post New Job</h3>
                   <div className="space-y-4">
