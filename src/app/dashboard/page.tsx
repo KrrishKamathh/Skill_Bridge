@@ -140,6 +140,7 @@ export default function Dashboard() {
 
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [applicants, setApplicants] = useState<any[]>([]);
+  const [viewingProfile, setViewingProfile] = useState<any>(null);
 
   const fetchApplicants = async (jobId: string) => {
     try {
@@ -358,11 +359,68 @@ export default function Dashboard() {
                                     <button onClick={() => updateApplicationStatus(app.id, "REJECTED")} className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-600 hover:bg-red-600 hover:text-white transition-all text-[8px] font-black uppercase">Reject</button>
                                   </>
                                 )}
-                                <button onClick={() => alert("Full Profile Viewer coming in next update!")} className="p-2 rounded-lg bg-[#cb4b16]/10 text-[#cb4b16] hover:bg-[#cb4b16] hover:text-white transition-all"><UserIcon className="w-4 h-4" /></button>
+                                <button onClick={() => setViewingProfile(app)} className="p-2 rounded-lg bg-[#cb4b16]/10 text-[#cb4b16] hover:bg-[#cb4b16] hover:text-white transition-all"><UserIcon className="w-4 h-4" /></button>
                               </div>
                             </div>
                           ))
                         )}
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+
+                {viewingProfile && (
+                  <div className="fixed inset-0 bg-[#2d2013]/60 backdrop-blur-md z-[110] flex items-center justify-center p-4">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-[#fdf6e3] w-full max-w-2xl rounded-[3rem] p-10 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+                      <button onClick={() => setViewingProfile(null)} className="absolute top-8 right-8 p-2 text-[#7a6040] hover:text-[#cb4b16]"><Plus className="w-8 h-8 rotate-45" /></button>
+                      
+                      <div className="flex items-center gap-6 mb-10">
+                        <div className="w-20 h-20 rounded-full bg-[#2d2013] flex items-center justify-center text-white text-3xl font-black">{viewingProfile.user.name?.[0]}</div>
+                        <div>
+                          <h2 className="text-3xl font-black tracking-tighter">{viewingProfile.user.name}</h2>
+                          <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-xs">{viewingProfile.user.studentProfile?.college || "SkillBridge Student"}</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-10">
+                        <section>
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><UserIcon className="w-3 h-3" /> Bio & Location</h4>
+                          <p className="text-sm text-[#2d2013] leading-relaxed mb-2">{viewingProfile.user.studentProfile?.bio || "No bio provided."}</p>
+                          <p className="text-xs font-bold text-[#7a6040] flex items-center gap-1"><MapPin className="w-3 h-3" /> {viewingProfile.user.studentProfile?.location || "Remote"}</p>
+                        </section>
+
+                        <section>
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><GraduationCap className="w-3 h-3" /> Qualifications</h4>
+                          <div className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl">
+                            <p className="text-sm font-black text-[#2d2013]">{viewingProfile.user.studentProfile?.college}</p>
+                            <p className="text-xs font-bold text-[#7a6040] mt-1">{viewingProfile.user.studentProfile?.school}</p>
+                          </div>
+                        </section>
+
+                        <section>
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><Briefcase className="w-3 h-3" /> Evidence Portfolio</h4>
+                          <div className="grid grid-cols-1 gap-4">
+                            {!viewingProfile.user.studentProfile?.projects?.length ? (
+                              <p className="text-xs italic text-[#7a6040]">No projects added yet.</p>
+                            ) : (
+                              viewingProfile.user.studentProfile.projects.map((p: any) => (
+                                <div key={p.id} className="p-6 bg-[#2d2013] text-[#fdf6e3] rounded-3xl shadow-sm">
+                                  <h5 className="font-black mb-2">{p.title}</h5>
+                                  <p className="text-[10px] opacity-80 leading-relaxed mb-4">{p.description}</p>
+                                  <div className="flex gap-4">
+                                    {p.githubUrl && <a href={p.githubUrl} target="_blank" className="text-[10px] font-black underline hover:text-[#cb4b16]">GitHub</a>}
+                                    {p.liveUrl && <a href={p.liveUrl} target="_blank" className="text-[10px] font-black underline hover:text-[#cb4b16]">Live Demo</a>}
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </section>
+                      </div>
+
+                      <div className="mt-12 pt-8 border-t border-[#cfc3a0] flex gap-4">
+                        <button onClick={() => { updateApplicationStatus(viewingProfile.id, "SHORTLISTED"); setViewingProfile(null); }} className="flex-1 bg-green-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:scale-[1.02] transition-all">Shortlist Candidate</button>
+                        <button onClick={() => { updateApplicationStatus(viewingProfile.id, "REJECTED"); setViewingProfile(null); }} className="px-8 py-5 rounded-2xl bg-red-600/10 text-red-600 font-black uppercase tracking-widest text-xs border border-red-600/20">Reject</button>
                       </div>
                     </motion.div>
                   </div>
