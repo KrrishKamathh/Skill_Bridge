@@ -468,8 +468,12 @@ export default function Dashboard() {
                             <p className="text-sm font-black text-[#2d2013]">{viewingProfile.user?.studentProfile?.college}</p>
                             <p className="text-xs font-bold text-[#7a6040] mt-1 mb-4">{viewingProfile.user?.studentProfile?.school}</p>
                             {viewingProfile.user?.studentProfile?.resumeUrl && (
-                              <a href={viewingProfile.user.studentProfile.resumeUrl} target="_blank" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2d2013] text-[#fdf6e3] text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all">
-                                <FileText className="w-4 h-4" /> View Full Resume
+                              <a 
+                                href={viewingProfile.user.studentProfile.resumeUrl} 
+                                download={`${viewingProfile.user.name}_Resume.pdf`}
+                                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2d2013] text-[#fdf6e3] text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all"
+                              >
+                                <FileText className="w-4 h-4" /> Download Resume
                               </a>
                             )}
                           </div>

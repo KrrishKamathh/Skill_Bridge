@@ -68,8 +68,12 @@ export default function PublicProfile({ params }: { params: Promise<{ username: 
                 <span className="flex items-center gap-1"><GraduationCap className="w-4 h-4" /> {profile?.college}</span>
               </div>
               {profile?.resumeUrl && (
-                <a href={profile.resumeUrl} target="_blank" className="inline-flex items-center gap-2 bg-[#cb4b16] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#fdf6e3] hover:text-[#2d2013] transition-all shadow-xl">
-                  <FileText className="w-4 h-4" /> View Full Resume
+                <a 
+                  href={profile.resumeUrl} 
+                  download={`${user.name}_Resume.pdf`}
+                  className="inline-flex items-center gap-2 bg-[#cb4b16] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#fdf6e3] hover:text-[#2d2013] transition-all shadow-xl"
+                >
+                  <FileText className="w-4 h-4" /> Download Resume
                 </a>
               )}
             </div>
