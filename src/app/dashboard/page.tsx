@@ -37,7 +37,7 @@ type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "pe
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<DashboardTab>("marketplace");
+  const [activeTab, setActiveTab] = useState<DashboardTab>("personal");
   const [userData, setUserData] = useState<any>(null);
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +105,10 @@ export default function Dashboard() {
       try {
         const res = await fetch("/api/user/profile");
         const data = await res.json();
+
+        if (data.role === "RECRUITER" && activeTab === "personal") {
+          setActiveTab("overview");
+        }
 
         if (!data.studentProfile && !data.recruiterProfile) {
           router.push("/onboarding");
