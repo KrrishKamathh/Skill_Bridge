@@ -31,6 +31,7 @@ export async function POST(req: Request) {
           achievements: data.achievements,
           location: data.location,
           bio: data.bio,
+          resumeUrl: data.resumeUrl,
         },
         create: {
           userId,
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
           achievements: data.achievements,
           location: data.location,
           bio: data.bio,
+          resumeUrl: data.resumeUrl,
         },
       });
 

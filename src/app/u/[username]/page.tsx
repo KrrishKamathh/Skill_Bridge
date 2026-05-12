@@ -10,7 +10,8 @@ import {
   ExternalLink, 
   User as UserIcon,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  FileText
 } from "lucide-react";
 
 export default function PublicProfile({ params }: { params: Promise<{ username: string }> }) {
@@ -62,10 +63,15 @@ export default function PublicProfile({ params }: { params: Promise<{ username: 
                 <span className="bg-[#cb4b16] text-white text-[10px] font-black uppercase px-3 py-1 rounded-full flex items-center gap-1 tracking-widest"><ShieldCheck className="w-3 h-3" /> SkillBridge Verified</span>
               </div>
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-4">{user.name}</h1>
-              <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-bold opacity-80">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-bold opacity-80 mb-6">
                 <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {profile?.location || "Global Candidate"}</span>
                 <span className="flex items-center gap-1"><GraduationCap className="w-4 h-4" /> {profile?.college}</span>
               </div>
+              {profile?.resumeUrl && (
+                <a href={profile.resumeUrl} target="_blank" className="inline-flex items-center gap-2 bg-[#cb4b16] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#fdf6e3] hover:text-[#2d2013] transition-all shadow-xl">
+                  <FileText className="w-4 h-4" /> View Full Resume
+                </a>
+              )}
             </div>
           </motion.div>
         </div>

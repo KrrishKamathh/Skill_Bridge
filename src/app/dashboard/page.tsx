@@ -409,7 +409,12 @@ export default function Dashboard() {
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><GraduationCap className="w-3 h-3" /> Qualifications</h4>
                           <div className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl">
                             <p className="text-sm font-black text-[#2d2013]">{viewingProfile.user.studentProfile?.college}</p>
-                            <p className="text-xs font-bold text-[#7a6040] mt-1">{viewingProfile.user.studentProfile?.school}</p>
+                            <p className="text-xs font-bold text-[#7a6040] mt-1 mb-4">{viewingProfile.user.studentProfile?.school}</p>
+                            {viewingProfile.user.studentProfile?.resumeUrl && (
+                              <a href={viewingProfile.user.studentProfile.resumeUrl} target="_blank" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2d2013] text-[#fdf6e3] text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all">
+                                <FileText className="w-4 h-4" /> View Full Resume
+                              </a>
+                            )}
                           </div>
                         </section>
 
@@ -493,6 +498,10 @@ export default function Dashboard() {
                   <div className="space-y-6">
                     <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Current College/University</label><input type="text" value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
                     <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Previous School</label><input type="text" value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Resume Link (Drive/Dropbox)</label>
+                      <input type="text" value={qualData.resumeUrl} onChange={(e) => setQualData({...qualData, resumeUrl: e.target.value})} placeholder="https://drive.google.com/..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                    </div>
                   </div>
                   <button onClick={() => handleUpdate(qualData)} disabled={saveLoading} className="bg-[#2d2013] text-[#fdf6e3] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Save Qualifications</button>
                 </div>
