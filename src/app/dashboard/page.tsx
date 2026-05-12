@@ -443,47 +443,33 @@ export default function Dashboard() {
                 )}
 
                 {viewingProfile && (
-                  <div className="fixed inset-0 bg-[#2d2013]/60 backdrop-blur-md z-[110] flex items-center justify-center p-4">
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-[#fdf6e3] w-full max-w-5xl rounded-[3rem] p-10 shadow-2xl relative max-h-[90vh] overflow-hidden flex flex-col md:flex-row gap-8">
-                      <button onClick={() => setViewingProfile(null)} className="absolute top-8 right-8 p-2 text-[#7a6040] hover:text-[#cb4b16] z-50"><Plus className="w-8 h-8 rotate-45" /></button>
+                  <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[150] flex items-center justify-center p-4">
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#fdf6e3] w-full max-w-5xl rounded-[3rem] shadow-2xl relative flex flex-col md:flex-row overflow-hidden max-h-[90vh]">
+                      <button onClick={() => setViewingProfile(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[160] bg-white/80 rounded-full shadow-sm"><Plus className="w-6 h-6 rotate-45" /></button>
                       
-                      {/* LEFT: DETAILED DOSSIER */}
-                      <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-10">
-                        <div className="flex items-center gap-6 mb-10">
+                      {/* LEFT: DATA DOSSIER */}
+                      <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar space-y-10">
+                        <div className="flex items-center gap-6">
                           <div className="w-20 h-20 rounded-full bg-[#2d2013] flex items-center justify-center text-white text-3xl font-black ring-4 ring-[#cb4b16]/20">{viewingProfile.user?.name?.[0]}</div>
                           <div>
                             <h2 className="text-3xl font-black tracking-tighter">{viewingProfile.user?.name}</h2>
-                            <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-xs">{viewingProfile.user?.studentProfile?.college || "SkillBridge Student"}</p>
+                            <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-[10px]">{viewingProfile.user?.studentProfile?.college || "SkillBridge Verified"}</p>
                           </div>
                         </div>
 
                         <section>
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><UserIcon className="w-3 h-3" /> Bio & Location</h4>
-                          <p className="text-sm text-[#2d2013] leading-relaxed mb-2">{viewingProfile.user?.studentProfile?.bio || "No bio provided."}</p>
-                          <p className="text-xs font-bold text-[#7a6040] flex items-center gap-1"><MapPin className="w-3 h-3" /> {viewingProfile.user?.studentProfile?.location || "Remote"}</p>
-                        </section>
-
-                        <section>
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><GraduationCap className="w-3 h-3" /> Qualifications</h4>
-                          <div className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl">
-                            <p className="text-sm font-black text-[#2d2013]">{viewingProfile.user?.studentProfile?.college}</p>
-                            <p className="text-xs font-bold text-[#7a6040] mt-1 mb-4">{viewingProfile.user?.studentProfile?.school}</p>
-                            {viewingProfile.user?.studentProfile?.resumeUrl && (
-                              <a 
-                                href={viewingProfile.user.studentProfile.resumeUrl} 
-                                download={`${viewingProfile.user.name}_Resume.pdf`}
-                                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2d2013] text-[#fdf6e3] text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all"
-                              >
-                                <FileText className="w-4 h-4" /> Download Resume
-                              </a>
-                            )}
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><UserIcon className="w-3 h-3" /> Background</h4>
+                          <p className="text-sm text-[#2d2013] leading-relaxed mb-4">{viewingProfile.user?.studentProfile?.bio || "A verified professional ready for new opportunities."}</p>
+                          <div className="flex flex-wrap gap-4">
+                            <span className="px-4 py-2 bg-white rounded-xl border border-[#cfc3a0] text-[10px] font-bold text-[#7a6040] flex items-center gap-2"><MapPin className="w-3 h-3" /> {viewingProfile.user?.studentProfile?.location || "Remote"}</span>
+                            <span className="px-4 py-2 bg-white rounded-xl border border-[#cfc3a0] text-[10px] font-bold text-[#7a6040] flex items-center gap-2"><GraduationCap className="w-3 h-3" /> {viewingProfile.user?.studentProfile?.college}</span>
                           </div>
                         </section>
 
                         <section>
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><Briefcase className="w-3 h-3" /> Evidence Portfolio</h4>
                           <div className="grid grid-cols-1 gap-4">
-                            {!viewingProfile.user?.studentProfile?.projects?.length ? (
+                            {(!viewingProfile.user?.studentProfile?.projects || viewingProfile.user?.studentProfile?.projects?.length === 0) ? (
                               <p className="text-xs italic text-[#7a6040]">No projects added yet.</p>
                             ) : (
                               viewingProfile.user?.studentProfile?.projects?.map((p: any) => (
@@ -499,47 +485,58 @@ export default function Dashboard() {
                             )}
                           </div>
                         </section>
+
+                        {viewingProfile.user?.studentProfile?.resumeUrl && (
+                          <section>
+                            <a 
+                              href={viewingProfile.user.studentProfile.resumeUrl} 
+                              download={`${viewingProfile.user.name}_Resume.pdf`}
+                              className="inline-flex items-center gap-2 bg-[#2d2013] text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all"
+                            >
+                              <FileText className="w-4 h-4" /> Download Official Resume
+                            </a>
+                          </section>
+                        )}
                       </div>
 
                       {/* RIGHT: AI INTELLIGENCE CARD */}
-                      <div className="w-full md:w-80 bg-[#eee8d5]/40 border border-[#cfc3a0] rounded-[2.5rem] p-6 flex flex-col gap-6 overflow-y-auto">
+                      <div className="w-full md:w-80 bg-[#eee8d5]/60 border-l border-[#cfc3a0] p-8 flex flex-col gap-8 overflow-y-auto">
                         <div className="text-center">
                           <p className="text-[8px] font-black uppercase tracking-[0.3em] text-[#cb4b16] mb-1">AI Intelligence Profile</p>
-                          <h3 className="text-lg font-black text-[#2d2013]">Candidate Insights</h3>
+                          <h3 className="text-lg font-black text-[#2d2013]">Insights Dashboard</h3>
                         </div>
 
-                        <div className="p-6 bg-white rounded-3xl shadow-inner text-center space-y-4">
+                        <div className="p-6 bg-white rounded-[2rem] shadow-inner text-center space-y-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Skill Radar</p>
-                          <div className="relative w-32 h-32 mx-auto flex items-center justify-center">
+                          <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
                              <svg className="w-full h-full transform -rotate-90">
-                               <circle cx="64" cy="64" r="58" stroke="#fdf6e3" strokeWidth="8" fill="transparent" />
-                               <circle cx="64" cy="64" r="58" stroke="#cb4b16" strokeWidth="8" fill="transparent" strokeDasharray="364.4" strokeDashoffset={364.4 - (364.4 * (viewingProfile.user?.studentProfile?.projects?.length > 2 ? 0.92 : 0.65))} strokeLinecap="round" className="transition-all duration-1000" />
+                               <circle cx="56" cy="56" r="50" stroke="#fdf6e3" strokeWidth="8" fill="transparent" />
+                               <circle cx="56" cy="56" r="50" stroke="#cb4b16" strokeWidth="8" fill="transparent" strokeDasharray="314" strokeDashoffset={314 - (314 * ((viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? 0.88 : 0.62))} strokeLinecap="round" className="transition-all duration-1000" />
                              </svg>
                              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                               <span className="text-2xl font-black">{viewingProfile.user?.studentProfile?.projects?.length > 2 ? "92%" : "65%"}</span>
+                               <span className="text-xl font-black">{(viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? "88%" : "62%"}</span>
                              </div>
-                          </div>
-                          <div className="flex justify-center gap-1">
-                             {[1,2,3,4,5].map(i => <div key={i} className={`w-2 h-6 rounded-full ${i <= (viewingProfile.user?.studentProfile?.projects?.length || 0) + 1 ? 'bg-[#cb4b16]' : 'bg-[#cfc3a0]'}`} />)}
                           </div>
                         </div>
 
-                        <div className="p-6 bg-[#2d2013] text-[#fdf6e3] rounded-3xl shadow-xl">
-                          <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4 flex items-center gap-2"><Sparkles className="w-3 h-3" /> AI Summary</h4>
+                        <div className="p-6 bg-[#2d2013] text-[#fdf6e3] rounded-[2rem] shadow-xl">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> AI Summary</h4>
                           <p className="text-[11px] leading-relaxed font-medium">
-                            Based on project evidence, this candidate shows high proficiency in technical execution and consistency.
+                            { (viewingProfile.user?.studentProfile?.projects?.length || 0) > 0 
+                              ? "Evidence suggests strong technical execution with verified project output."
+                              : "Pending project evidence for a more accurate technical evaluation."
+                            }
                           </p>
                         </div>
 
-                        <div className="p-5 bg-white border border-[#cfc3a0] rounded-3xl mt-auto">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-[#7a6040] mb-3">Roadmap Progress</p>
-                          <p className="text-xs font-black text-[#2d2013] mb-1">Advanced Mastery</p>
+                        <div className="p-5 bg-white border border-[#cfc3a0] rounded-[2rem] mt-auto">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-[#7a6040] mb-3">Roadmap Completion</p>
                           <div className="w-full bg-[#fdf6e3] h-1.5 rounded-full overflow-hidden">
-                             <div className="bg-[#cb4b16] h-full w-[75%] rounded-full" />
+                             <div className="bg-[#cb4b16] h-full w-[65%] rounded-full" />
                           </div>
                         </div>
 
-                        {userRole === "RECRUITER" && viewingProfile.status === "PENDING" && (
+                        {userRole === "RECRUITER" && viewingProfile?.status === "PENDING" && (
                           <div className="flex flex-col gap-3">
                             <button onClick={() => { updateApplicationStatus(viewingProfile.id, "SHORTLISTED"); setViewingProfile(null); }} className="w-full py-5 rounded-2xl bg-[#cb4b16] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:scale-105 transition-all">Quick Hire</button>
                             <button onClick={() => { updateApplicationStatus(viewingProfile.id, "REJECTED"); setViewingProfile(null); }} className="w-full py-5 rounded-2xl bg-white text-[#2d2013] border border-[#cfc3a0] font-black uppercase tracking-widest text-xs hover:bg-[#2d2013] hover:text-white transition-all">Pass</button>
