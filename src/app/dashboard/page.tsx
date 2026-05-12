@@ -304,15 +304,6 @@ export default function Dashboard() {
               <motion.div key="marketplace" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {marketplaceJobs.map((job) => (
-                    <div key={job.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2rem] shadow-sm hover:shadow-xl transition-all group flex flex-col">
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="p-3 rounded-2xl bg-[#cb4b16]/10 text-[#cb4b16]"><Building className="w-6 h-6" /></div>
-                          <span className="text-[10px] font-black bg-[#2d2013] text-[#fdf6e3] px-3 py-1 rounded-full uppercase tracking-tighter">{job.jobType}</span>
-                        </div>
-                        <h3 className="text-xl font-black mb-1">{job.title}</h3>
-                        <p className="text-xs font-bold text-[#cb4b16] mb-4 uppercase tracking-tight">{job.recruiterProfile?.companyName || "Organization"}</p>
-                        <div className="flex items-center gap-4 text-[10px] text-[#7a6040] font-black mb-6">
                           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {job.location}</span>
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Just Posted</span>
                         </div>
@@ -436,6 +427,70 @@ export default function Dashboard() {
                               </div>
                             </div>
                           ))
+                        )}
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+
+                {/* JOB INTELLIGENCE MODAL (STUDENT) */}
+                {viewingJob && (
+                  <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[150] flex items-center justify-center p-4">
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#fdf6e3] w-full max-w-3xl rounded-[3rem] shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]">
+                      <button onClick={() => setViewingJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[160] bg-white/80 rounded-full shadow-sm"><Plus className="w-6 h-6 rotate-45" /></button>
+                      
+                      <div className="flex-1 overflow-y-auto p-10 md:p-14 custom-scrollbar">
+                        <div className="flex items-center gap-6 mb-12">
+                          <div className="w-20 h-20 rounded-3xl bg-[#2d2013] text-white flex items-center justify-center text-3xl font-black shadow-xl">{viewingJob.recruiterProfile?.companyName?.[0]}</div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#cb4b16] mb-1">{viewingJob.recruiterProfile?.companyName}</p>
+                            <h2 className="text-4xl font-black tracking-tighter leading-none">{viewingJob.title}</h2>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-12">
+                          <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0]">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Role Type</p>
+                            <p className="font-bold text-[#2d2013]">{viewingJob.type}</p>
+                          </div>
+                          <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0]">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Hiring Location</p>
+                            <p className="font-bold text-[#2d2013]">{viewingJob.location}</p>
+                          </div>
+                        </div>
+
+                        <section className="mb-12">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> Mission & Description</h4>
+                          <p className="text-lg text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap">
+                            {viewingJob.description}
+                          </p>
+                        </section>
+
+                        <section className="p-8 bg-[#2d2013] rounded-[2.5rem] text-[#fdf6e3]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <ShieldCheck className="w-5 h-5 text-[#cb4b16]" />
+                            <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60">Verified SkillBridge Listing</h4>
+                          </div>
+                          <p className="text-xs leading-relaxed opacity-80">
+                            This listing has been verified by the SkillBridge integrity team. By applying, your verified profile and evidence portfolio will be shared directly with the {viewingJob.recruiterProfile?.companyName} hiring team.
+                          </p>
+                        </section>
+                      </div>
+
+                      <div className="p-10 bg-white border-t border-[#cfc3a0] flex items-center justify-between gap-8">
+                        <div>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Ready to deploy?</p>
+                           <p className="text-xs font-bold text-[#2d2013]">Confirm your application below.</p>
+                        </div>
+                        {viewingJob.hasApplied ? (
+                          <div className="px-10 py-5 rounded-2xl bg-green-500/10 text-green-600 font-black uppercase tracking-widest text-xs border border-green-500/20">Application Sent ✓</div>
+                        ) : (
+                          <button 
+                            onClick={() => { handleApply(viewingJob.id); setViewingJob(null); }} 
+                            className="bg-[#cb4b16] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:scale-105 transition-all"
+                          >
+                            Confirm Application
+                          </button>
                         )}
                       </div>
                     </motion.div>
