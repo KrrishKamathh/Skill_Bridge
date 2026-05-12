@@ -318,11 +318,11 @@ export default function Dashboard() {
                         <p className="text-xs text-[#7a6040] leading-relaxed line-clamp-3 mb-6">{job.description}</p>
                       </div>
                       <button 
-                        onClick={() => !job.applications.length && handleApply(job.id)}
-                        disabled={job.applications.length > 0}
-                        className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${job.applications.length > 0 ? 'bg-[#cfc3a0] text-[#7a6040] cursor-not-allowed' : 'bg-[#cb4b16] text-white hover:scale-[1.02] shadow-lg'}`}
+                        onClick={() => !job.applications?.length && handleApply(job.id)}
+                        disabled={job.applications?.length > 0}
+                        className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${job.applications?.length > 0 ? 'bg-[#cfc3a0] text-[#7a6040] cursor-not-allowed' : 'bg-[#cb4b16] text-white hover:scale-[1.02] shadow-lg'}`}
                       >
-                        {job.applications.length > 0 ? "Application Sent" : "Quick Apply"}
+                        {job.applications?.length > 0 ? "Application Sent" : "Quick Apply"}
                       </button>
                     </div>
                   ))}
@@ -332,12 +332,12 @@ export default function Dashboard() {
 
             {userRole === "STUDENT" && activeTab === "applications" && (
               <motion.div key="applications" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                {myApplications.length === 0 ? (
+                {myApplications?.length === 0 ? (
                   <div className="text-center py-20 bg-white/40 border border-[#cfc3a0] rounded-[2.5rem]">
                     <p className="font-bold text-[#7a6040]">You haven't applied to any jobs yet.</p>
                   </div>
                 ) : (
-                  myApplications.map((app) => (
+                  myApplications?.map((app) => (
                     <div key={app.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl flex items-center justify-between group hover:shadow-lg transition-all">
                       <div className="flex items-center gap-6">
                         <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black"><Briefcase className="w-6 h-6" /></div>
@@ -365,7 +365,7 @@ export default function Dashboard() {
             {userRole === "RECRUITER" && activeTab === "talent" && (
               <motion.div key="talent" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {talentPool.map((student) => (
+                  {talentPool?.map((student) => (
                     <div key={student.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col">
                       <div className="flex-1">
                         <div className="flex items-center gap-4 mb-6">
@@ -393,7 +393,7 @@ export default function Dashboard() {
             {userRole === "RECRUITER" && activeTab === "listings" && (
               <motion.div key="listings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {jobs.map((job) => (
+                  {jobs?.map((job) => (
                     <div key={job.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl shadow-sm group">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-bold text-[#2d2013]">{job.title}</h4>
@@ -415,10 +415,10 @@ export default function Dashboard() {
                       <button onClick={() => setSelectedJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16]"><Plus className="w-6 h-6 rotate-45" /></button>
                       <h3 className="text-2xl font-black mb-6">Applicants</h3>
                       <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                        {applicants.length === 0 ? (
+                        {applicants?.length === 0 ? (
                           <p className="text-sm font-bold text-[#7a6040] text-center py-10">No applications yet.</p>
                         ) : (
-                          applicants.map((app) => (
+                          applicants?.map((app) => (
                             <div key={app.id} className="p-4 bg-white/60 border border-[#cfc3a0] rounded-2xl flex items-center justify-between">
                               <div>
                                 <p className="font-bold text-[#2d2013]">{app.user.name}</p>
@@ -447,26 +447,26 @@ export default function Dashboard() {
                       <button onClick={() => setViewingProfile(null)} className="absolute top-8 right-8 p-2 text-[#7a6040] hover:text-[#cb4b16]"><Plus className="w-8 h-8 rotate-45" /></button>
                       
                       <div className="flex items-center gap-6 mb-10">
-                        <div className="w-20 h-20 rounded-full bg-[#2d2013] flex items-center justify-center text-white text-3xl font-black">{viewingProfile.user.name?.[0]}</div>
+                        <div className="w-20 h-20 rounded-full bg-[#2d2013] flex items-center justify-center text-white text-3xl font-black">{viewingProfile.user?.name?.[0]}</div>
                         <div>
-                          <h2 className="text-3xl font-black tracking-tighter">{viewingProfile.user.name}</h2>
-                          <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-xs">{viewingProfile.user.studentProfile?.college || "SkillBridge Student"}</p>
+                          <h2 className="text-3xl font-black tracking-tighter">{viewingProfile.user?.name}</h2>
+                          <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-xs">{viewingProfile.user?.studentProfile?.college || "SkillBridge Student"}</p>
                         </div>
                       </div>
 
                       <div className="space-y-10">
                         <section>
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><UserIcon className="w-3 h-3" /> Bio & Location</h4>
-                          <p className="text-sm text-[#2d2013] leading-relaxed mb-2">{viewingProfile.user.studentProfile?.bio || "No bio provided."}</p>
-                          <p className="text-xs font-bold text-[#7a6040] flex items-center gap-1"><MapPin className="w-3 h-3" /> {viewingProfile.user.studentProfile?.location || "Remote"}</p>
+                          <p className="text-sm text-[#2d2013] leading-relaxed mb-2">{viewingProfile.user?.studentProfile?.bio || "No bio provided."}</p>
+                          <p className="text-xs font-bold text-[#7a6040] flex items-center gap-1"><MapPin className="w-3 h-3" /> {viewingProfile.user?.studentProfile?.location || "Remote"}</p>
                         </section>
 
                         <section>
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><GraduationCap className="w-3 h-3" /> Qualifications</h4>
                           <div className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl">
-                            <p className="text-sm font-black text-[#2d2013]">{viewingProfile.user.studentProfile?.college}</p>
-                            <p className="text-xs font-bold text-[#7a6040] mt-1 mb-4">{viewingProfile.user.studentProfile?.school}</p>
-                            {viewingProfile.user.studentProfile?.resumeUrl && (
+                            <p className="text-sm font-black text-[#2d2013]">{viewingProfile.user?.studentProfile?.college}</p>
+                            <p className="text-xs font-bold text-[#7a6040] mt-1 mb-4">{viewingProfile.user?.studentProfile?.school}</p>
+                            {viewingProfile.user?.studentProfile?.resumeUrl && (
                               <a href={viewingProfile.user.studentProfile.resumeUrl} target="_blank" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2d2013] text-[#fdf6e3] text-[10px] font-black uppercase tracking-widest hover:bg-[#cb4b16] transition-all">
                                 <FileText className="w-4 h-4" /> View Full Resume
                               </a>
@@ -477,7 +477,7 @@ export default function Dashboard() {
                         <section>
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4 flex items-center gap-2"><Briefcase className="w-3 h-3" /> Evidence Portfolio</h4>
                           <div className="grid grid-cols-1 gap-4">
-                            {!viewingProfile.user.studentProfile?.projects?.length ? (
+                            {!viewingProfile.user?.studentProfile?.projects?.length ? (
                               <p className="text-xs italic text-[#7a6040]">No projects added yet.</p>
                             ) : (
                               viewingProfile.user.studentProfile.projects.map((p: any) => (
