@@ -30,7 +30,8 @@ import {
   Building,
   Edit3,
   Upload,
-  Users
+  Users,
+  X
 } from "lucide-react";
 
 type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
