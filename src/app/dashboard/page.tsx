@@ -257,8 +257,7 @@ export default function Dashboard() {
             <>
               <NavItem icon={<FileText className="w-4 h-4" />} label="Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} />
               <NavItem icon={<UserIcon className="w-4 h-4" />} label="Identity" active={activeTab === "personal"} onClick={() => setActiveTab("personal")} />
-              <NavItem icon={<GraduationCap className="w-4 h-4" />} label="Academic" active={activeTab === "qualifications"} onClick={() => setActiveTab("qualifications")} />
-              <NavItem icon={<Trophy className="w-4 h-4" />} label="Portfolio" active={activeTab === "portfolio"} onClick={() => setActiveTab("portfolio")} />
+              <NavItem icon={<Trophy className="w-4 h-4" />} label="Dossier" active={activeTab === "qualifications"} onClick={() => setActiveTab("qualifications")} />
             </>
           ) : (
             <>
@@ -440,80 +439,106 @@ export default function Dashboard() {
             )}
 
             {userRole === "STUDENT" && activeTab === "qualifications" && (
-              <motion.div key="qualifications" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
-                <div className="space-y-8">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">College / University</label>
-                      <input value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+              <motion.div key="dossier" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                {/* Academic & Resume Section */}
+                <div className="bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
+                  <div className="flex items-center justify-between mb-10">
+                    <div>
+                      <h3 className="text-xl font-black tracking-tight">Academic Foundation</h3>
+                      <p className="text-xs text-[#7a6040] font-bold">Manage your educational background and official resume.</p>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">School / Higher Secondary</label>
-                      <input value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    <div className="relative">
+                      <input type="file" id="resume-upload" className="hidden" accept=".pdf" onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => setQualData({ ...qualData, resumeUrl: reader.result as string });
+                          reader.readAsDataURL(file);
+                        }
+                      }} />
+                      <label htmlFor="resume-upload" className="px-6 py-3 bg-[#2d2013] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#cb4b16] transition-all cursor-pointer flex items-center gap-2">
+                        <Upload className="w-4 h-4" /> {qualData.resumeUrl ? "Update Resume" : "Upload Resume (PDF)"}
+                      </label>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1 flex items-center gap-2"><FileText className="w-3 h-3" /> Resume URL (Google Drive / Dropbox)</label>
-                    <input value={qualData.resumeUrl} onChange={(e) => setQualData({...qualData, resumeUrl: e.target.value})} placeholder="https://..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
-                  </div>
-                  <button onClick={() => handleUpdate(qualData)} className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Update Academic Profile</button>
-                </div>
-              </motion.div>
-            )}
 
-            {userRole === "STUDENT" && activeTab === "portfolio" && (
-              <motion.div key="portfolio" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
-                <div className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
-                  <h3 className="text-xl font-black tracking-tight mb-8">Add New Evidence</h3>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Project Title</label>
-                      <input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                  <div className="space-y-8">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">College / University</label>
+                        <input value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">School / Higher Secondary</label>
+                        <input value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Detailed Description</label>
-                      <textarea rows={4} value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold resize-none" />
-                    </div>
-                    <button 
-                      onClick={async () => {
-                        if (!newProject.title) return;
-                        setSaveLoading(true);
-                        try {
-                          const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProject) });
-                          if (res.ok) {
-                            setNewProject({ id: "", title: "", description: "" });
-                            fetchProfile();
-                            alert("Project added!");
-                          }
-                        } catch (e) { console.error(e); } finally { setSaveLoading(false); }
-                      }} 
-                      className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl"
-                    >
-                      Deploy Project to Profile
-                    </button>
+                    {qualData.resumeUrl && (
+                      <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-green-600" />
+                        <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Resume Verified & Loaded ✓</span>
+                      </div>
+                    )}
+                    <button onClick={() => handleUpdate(qualData)} className="w-full py-5 rounded-2xl bg-[#cb4b16] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl">Save Academic Foundation</button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {userData?.studentProfile?.projects?.map((p: any) => (
-                    <div key={p.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm group relative">
-                      <button 
-                        onClick={async () => {
-                          if (!confirm("Remove this evidence?")) return;
-                          try {
-                            const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
-                            if (res.ok) fetchProfile();
-                          } catch (e) { console.error(e); }
-                        }}
-                        className="absolute top-6 right-6 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      <div className="w-10 h-10 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-6"><Trophy className="w-5 h-5" /></div>
-                      <h4 className="text-lg font-black tracking-tight mb-2">{p.title}</h4>
-                      <p className="text-xs text-[#7a6040] leading-relaxed line-clamp-3">{p.description}</p>
+                {/* Evidence Portfolio Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-1">
+                    <div className="bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 shadow-sm sticky top-8">
+                      <h3 className="text-lg font-black tracking-tight mb-6">Deploy Evidence</h3>
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Project Title</label>
+                          <input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] text-sm font-bold" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Description</label>
+                          <textarea rows={3} value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] text-sm font-bold resize-none" />
+                        </div>
+                        <button 
+                          onClick={async () => {
+                            if (!newProject.title) return;
+                            setSaveLoading(true);
+                            try {
+                              const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProject) });
+                              if (res.ok) {
+                                setNewProject({ id: "", title: "", description: "" });
+                                fetchProfile();
+                                alert("Evidence deployed!");
+                              }
+                            } catch (e) { console.error(e); } finally { setSaveLoading(false); }
+                          }} 
+                          className="w-full py-4 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] transition-all shadow-md"
+                        >
+                          Add to Dossier
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 h-fit">
+                    {userData?.studentProfile?.projects?.map((p: any) => (
+                      <div key={p.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl shadow-sm group relative">
+                        <button 
+                          onClick={async () => {
+                            if (!confirm("Remove this evidence?")) return;
+                            try {
+                              const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
+                              if (res.ok) fetchProfile();
+                            } catch (e) { console.error(e); }
+                          }}
+                          className="absolute top-4 right-4 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <div className="w-8 h-8 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-4"><Trophy className="w-4 h-4" /></div>
+                        <h4 className="text-sm font-black tracking-tight mb-1">{p.title}</h4>
+                        <p className="text-[10px] text-[#7a6040] leading-relaxed line-clamp-2">{p.description}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
