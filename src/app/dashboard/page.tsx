@@ -32,7 +32,7 @@ import {
   Upload
 } from "lucide-react";
 
-type DashboardTab = "overview" | "marketplace" | "applications" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
+type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -127,11 +127,23 @@ export default function Dashboard() {
     } catch (e) { console.error(e); }
   };
 
+  const [talentPool, setTalentPool] = useState<any[]>([]);
+
+  const fetchTalent = async () => {
+    try {
+      const res = await fetch("/api/students/browse");
+      const data = await res.json();
+      setTalentPool(data);
+    } catch (e) { console.error(e); }
+  };
+
   useEffect(() => { 
     fetchProfile(); 
     if (userRole === "STUDENT") {
       fetchMarketplace();
       fetchMyApplications();
+    } else {
+      fetchTalent();
     }
   }, [session]);
 
@@ -230,6 +242,7 @@ export default function Dashboard() {
               <>
                 <NavItem icon={<Building className="w-4 h-4" />} label="Company Info" active={activeTab === "company"} onClick={() => setActiveTab("company")} />
                 <NavItem icon={<Briefcase className="w-4 h-4" />} label="My Listings" active={activeTab === "listings"} onClick={() => setActiveTab("listings")} />
+                <NavItem icon={<Users className="w-4 h-4" />} label="Talent Pool" active={activeTab === "talent"} onClick={() => setActiveTab("talent")} />
               </>
             )}
           </div>
@@ -256,6 +269,7 @@ export default function Dashboard() {
               {activeTab === "portfolio" && "Project Portfolio"}
               {activeTab === "company" && "Company Profile"}
               {activeTab === "listings" && "My Job Listings"}
+              {activeTab === "talent" && "Global Talent Pool"}
             </h1>
           </header>
 
@@ -331,6 +345,33 @@ export default function Dashboard() {
                     </div>
                   ))
                 )}
+              </motion.div>
+            )}
+
+            {userRole === "RECRUITER" && activeTab === "talent" && (
+              <motion.div key="talent" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {talentPool.map((student) => (
+                    <div key={student.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="w-16 h-16 rounded-full bg-[#2d2013] text-white flex items-center justify-center text-2xl font-black ring-4 ring-[#cb4b16]/10">{student.name?.[0]}</div>
+                          <div>
+                            <h3 className="text-xl font-black tracking-tight">{student.name}</h3>
+                            <p className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest">{student.studentProfile?.college || "Global Talent"}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-[#7a6040] leading-relaxed line-clamp-3 mb-6 font-medium italic">"{student.studentProfile?.bio || "A verified SkillBridge professional ready for new opportunities."}"</p>
+                      </div>
+                      <button 
+                        onClick={() => setViewingProfile({ user: student })}
+                        className="w-full py-4 rounded-2xl bg-[#2d2013] text-white font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] transition-all shadow-lg"
+                      >
+                        View Full Portfolio
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </motion.div>
             )}
 
