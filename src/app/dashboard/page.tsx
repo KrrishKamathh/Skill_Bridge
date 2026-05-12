@@ -439,13 +439,13 @@ export default function Dashboard() {
             )}
 
             {userRole === "STUDENT" && activeTab === "qualifications" && (
-              <motion.div key="dossier" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+              <motion.div key="dossier" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 max-w-4xl mx-auto">
                 {/* Academic & Resume Section */}
                 <div className="bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
                   <div className="flex items-center justify-between mb-10">
                     <div>
-                      <h3 className="text-xl font-black tracking-tight">Academic Foundation</h3>
-                      <p className="text-xs text-[#7a6040] font-bold">Manage your educational background and official resume.</p>
+                      <h3 className="text-xl font-black tracking-tight uppercase tracking-widest text-[14px]">Academic Foundation</h3>
+                      <p className="text-[10px] text-[#7a6040] font-bold uppercase opacity-60">Manage your educational background and official resume.</p>
                     </div>
                     <div className="relative">
                       <input type="file" id="resume-upload" className="hidden" accept=".pdf" onChange={(e) => {
@@ -479,66 +479,63 @@ export default function Dashboard() {
                         <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Resume Verified & Loaded ✓</span>
                       </div>
                     )}
-                    <button onClick={() => handleUpdate(qualData)} className="w-full py-5 rounded-2xl bg-[#cb4b16] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl">Save Academic Foundation</button>
+                    <button onClick={() => handleUpdate(qualData)} className="w-full py-5 rounded-2xl bg-[#cb4b16] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:scale-[1.01] transition-all shadow-xl">Save Academic Foundation</button>
                   </div>
                 </div>
 
-                {/* Evidence Portfolio Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-1">
-                    <div className="bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 shadow-sm sticky top-8">
-                      <h3 className="text-lg font-black tracking-tight mb-6">Deploy Evidence</h3>
-                      <div className="space-y-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Project Title</label>
-                          <input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] text-sm font-bold" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Description</label>
-                          <textarea rows={3} value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] text-sm font-bold resize-none" />
-                        </div>
-                        <button 
-                          onClick={async () => {
-                            if (!newProject.title) return;
-                            setSaveLoading(true);
-                            try {
-                              const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProject) });
-                              if (res.ok) {
-                                setNewProject({ id: "", title: "", description: "" });
-                                fetchProfile();
-                                alert("Evidence deployed!");
-                              }
-                            } catch (e) { console.error(e); } finally { setSaveLoading(false); }
-                          }} 
-                          className="w-full py-4 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] transition-all shadow-md"
-                        >
-                          Add to Dossier
-                        </button>
-                      </div>
+                {/* Achievements Section */}
+                <div className="bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
+                  <h3 className="text-xl font-black tracking-tight mb-8 uppercase tracking-widest text-[14px]">Add New Achievement</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Achievement Title</label>
+                      <input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} placeholder="e.g. Hackathon Winner, Open Source Lead..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] text-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Description</label>
+                      <input value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} placeholder="Briefly describe your impact..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] text-sm font-bold" />
                     </div>
                   </div>
+                  <button 
+                    onClick={async () => {
+                      if (!newProject.title) return;
+                      setSaveLoading(true);
+                      try {
+                        const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProject) });
+                        if (res.ok) {
+                          setNewProject({ id: "", title: "", description: "" });
+                          fetchProfile();
+                          alert("Achievement Added!");
+                        }
+                      } catch (e) { console.error(e); } finally { setSaveLoading(false); }
+                    }} 
+                    className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-md"
+                  >
+                    Lock Achievement to Profile
+                  </button>
+                </div>
 
-                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 h-fit">
-                    {userData?.studentProfile?.projects?.map((p: any) => (
-                      <div key={p.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl shadow-sm group relative">
-                        <button 
-                          onClick={async () => {
-                            if (!confirm("Remove this evidence?")) return;
-                            try {
-                              const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
-                              if (res.ok) fetchProfile();
-                            } catch (e) { console.error(e); }
-                          }}
-                          className="absolute top-4 right-4 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <div className="w-8 h-8 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-4"><Trophy className="w-4 h-4" /></div>
-                        <h4 className="text-sm font-black tracking-tight mb-1">{p.title}</h4>
-                        <p className="text-[10px] text-[#7a6040] leading-relaxed line-clamp-2">{p.description}</p>
-                      </div>
-                    ))}
-                  </div>
+                {/* Achievements Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {userData?.studentProfile?.projects?.map((p: any) => (
+                    <div key={p.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl shadow-sm group relative">
+                      <button 
+                        onClick={async () => {
+                          if (!confirm("Remove this achievement?")) return;
+                          try {
+                            const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
+                            if (res.ok) fetchProfile();
+                          } catch (e) { console.error(e); }
+                        }}
+                        className="absolute top-4 right-4 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <div className="w-8 h-8 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-4"><Trophy className="w-4 h-4" /></div>
+                      <h4 className="text-sm font-black tracking-tight mb-1">{p.title}</h4>
+                      <p className="text-[10px] text-[#7a6040] leading-relaxed line-clamp-2">{p.description}</p>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             )}
