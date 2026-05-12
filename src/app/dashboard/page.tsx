@@ -103,8 +103,6 @@ export default function Dashboard() {
     }
   };
 
-  const [marketplaceJobs, setMarketplaceJobs] = useState<any[]>([]);
-
   const fetchMarketplace = async () => {
     try {
       const res = await fetch("/api/jobs/marketplace", { cache: 'no-store' });
@@ -137,8 +135,6 @@ export default function Dashboard() {
     }
   };
 
-  const [myApplications, setMyApplications] = useState<any[]>([]);
-
   const fetchMyApplications = async () => {
     try {
       const res = await fetch("/api/applications/my", { cache: 'no-store' });
@@ -146,8 +142,6 @@ export default function Dashboard() {
       if (res.ok && Array.isArray(data)) setMyApplications(data);
     } catch (e) { console.error(e); }
   };
-
-  const [talentPool, setTalentPool] = useState<any[]>([]);
 
   const fetchTalent = async () => {
     try {
@@ -175,10 +169,6 @@ export default function Dashboard() {
       alert("Saved!");
     } catch (e) { console.error(e); } finally { setSaveLoading(false); }
   };
-
-  const [selectedJob, setSelectedJob] = useState<any>(null);
-  const [applicants, setApplicants] = useState<any[]>([]);
-  const [viewingProfile, setViewingProfile] = useState<any>(null);
 
   const fetchApplicants = async (jobId: string) => {
     try {
