@@ -650,33 +650,77 @@ export default function Dashboard() {
 
         {viewingJob && (
           <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-3xl rounded-[3rem] shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]">
-              <button onClick={() => setViewingJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[210] bg-white/80 rounded-full shadow-sm"><Plus className="w-6 h-6 rotate-45" /></button>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-4xl rounded-[3rem] shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]">
+              <button onClick={() => setViewingJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[210] bg-white/80 rounded-full shadow-sm transition-all hover:rotate-90"><X className="w-6 h-6" /></button>
               <div className="flex-1 overflow-y-auto p-10 md:p-14 custom-scrollbar">
                 <div className="flex items-center gap-6 mb-12">
-                  <div className="w-20 h-20 rounded-3xl bg-[#2d2013] text-white flex items-center justify-center text-3xl font-black shadow-xl">{viewingJob.recruiterProfile?.companyName?.[0] || "S"}</div>
+                  <div className="w-24 h-24 rounded-3xl bg-[#2d2013] text-white flex items-center justify-center text-4xl font-black shadow-xl">{viewingJob.recruiterProfile?.companyName?.[0] || "S"}</div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#cb4b16] mb-1">{viewingJob.recruiterProfile?.companyName || "Verified Partner"}</p>
-                    <h2 className="text-4xl font-black tracking-tighter leading-none">{viewingJob.title}</h2>
+                    <p className="text-[12px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">{viewingJob.recruiterProfile?.companyName || "Verified Partner"}</p>
+                    <h2 className="text-5xl font-black tracking-tighter leading-none">{viewingJob.title}</h2>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-12">
-                  <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0]">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Role Type</p>
-                    <p className="font-bold text-[#2d2013]">{viewingJob.type || viewingJob.jobType}</p>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                  <div className="lg:col-span-2 space-y-12">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Role Intelligence</p>
+                        <p className="font-bold text-[#2d2013] text-lg">{viewingJob.type || viewingJob.jobType}</p>
+                      </div>
+                      <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Hiring Location</p>
+                        <p className="font-bold text-[#2d2013] text-lg">{viewingJob.location}</p>
+                      </div>
+                    </div>
+                    
+                    <section>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> Mission & Description</h4>
+                      <p className="text-xl text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap opacity-90">{viewingJob.description}</p>
+                    </section>
                   </div>
-                  <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0]">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Hiring Location</p>
-                    <p className="font-bold text-[#2d2013]">{viewingJob.location}</p>
+
+                  <div className="space-y-6">
+                    {/* Recruiter Spotlight Card */}
+                    <div className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#cb4b16] mb-8">Recruiter Spotlight</h4>
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-14 h-14 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center text-xl font-black">{viewingJob.recruiterProfile?.user?.name?.[0]}</div>
+                        <div>
+                          <p className="text-sm font-black tracking-tight">{viewingJob.recruiterProfile?.user?.name}</p>
+                          <p className="text-[10px] font-black text-[#7a6040] uppercase tracking-widest">{viewingJob.recruiterProfile?.designation || "Hiring Manager"}</p>
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-[#cfc3a0]/30">
+                        <p className="text-[8px] font-black text-[#cb4b16] uppercase tracking-widest mb-1">Company Status</p>
+                        <p className="text-xs font-bold text-[#2d2013]">{viewingJob.recruiterProfile?.companyName} Verified ✓</p>
+                      </div>
+                    </div>
+
+                    <div className="p-8 bg-[#cb4b16]/5 border border-[#cb4b16]/10 rounded-[2.5rem]">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-[#cb4b16] mb-4">Discovery Metrics</p>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold text-[#7a6040]">Applicants</span>
+                          <span className="text-[10px] font-black text-[#2d2013]">{viewingJob.applications?.length || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold text-[#7a6040]">Recruiter Activity</span>
+                          <span className="text-[10px] font-black text-green-600">HIGH</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <section className="mb-12">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> Mission & Description</h4>
-                  <p className="text-lg text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap">{viewingJob.description}</p>
-                </section>
               </div>
               <div className="p-10 bg-white border-t border-[#cfc3a0] flex items-center justify-between gap-8">
-                <div className="flex-1 bg-[#cb4b16] text-white py-5 rounded-2xl font-black uppercase tracking-widest text-center shadow-xl hover:scale-105 transition-all cursor-pointer" onClick={() => { handleApply(viewingJob.id); setViewingJob(null); }}>Confirm Application</div>
+                <div className="text-left hidden md:block">
+                  <p className="text-[10px] font-black text-[#7a6040] uppercase tracking-widest mb-1">Final Step</p>
+                  <p className="text-xs font-bold text-[#2d2013]">Deploy your professional evidence to this role.</p>
+                </div>
+                <div className="flex-1 max-w-md bg-[#2d2013] text-white py-5 rounded-3xl font-black uppercase tracking-widest text-center shadow-2xl hover:bg-[#cb4b16] hover:scale-[1.02] transition-all cursor-pointer text-xs" onClick={() => { handleApply(viewingJob.id); setViewingJob(null); }}>
+                  Deploy Verified Application
+                </div>
               </div>
             </motion.div>
           </div>
