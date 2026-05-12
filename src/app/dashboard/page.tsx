@@ -131,6 +131,7 @@ export default function Dashboard() {
           }
           if (data.recruiterProfile) {
             setRecruiterData({ companyName: data.recruiterProfile.companyName || "", publicBio: data.recruiterProfile.publicBio || "" });
+            setJobs(data.recruiterProfile.jobs || []);
           }
         }
       } catch (e) { console.error(e); } finally { setLoading(false); }
@@ -275,9 +276,9 @@ export default function Dashboard() {
           ) : (
             <>
               <NavItem icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
-              <NavItem icon={<Globe className="w-4 h-4" />} label="Job Board" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />
-              <NavItem icon={<Users className="w-4 h-4" />} label="Talent Pool" active={activeTab === "talent"} onClick={() => setActiveTab("talent")} />
               <NavItem icon={<Briefcase className="w-4 h-4" />} label="My Listings" active={activeTab === "listings"} onClick={() => setActiveTab("listings")} />
+              <NavItem icon={<Users className="w-4 h-4" />} label="Talent Pool" active={activeTab === "talent"} onClick={() => setActiveTab("talent")} />
+              <NavItem icon={<Building className="w-4 h-4" />} label="Company" active={activeTab === "company"} onClick={() => setActiveTab("company")} />
             </>
           )}
         </nav>
@@ -625,7 +626,18 @@ export default function Dashboard() {
               <motion.div key="talent" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {talentPool?.map((student: any) => (
                   <div key={student.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[3.5rem] shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden flex flex-col">
-                    <div className="absolute top-0 right-0 p-6">
+                    <div className="absolute top-0 right-0 p-6 flex items-center gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm("Remove this student from your talent pool?")) {
+                            setTalentPool(talentPool.filter((s: any) => s.id !== student.id));
+                          }
+                        }}
+                        className="p-2 bg-red-500/10 text-red-600 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white shadow-sm"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                       <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-[8px] font-black uppercase tracking-widest border border-green-500/20">
                         <ShieldCheck className="w-2 h-2" /> Verified
                       </div>
