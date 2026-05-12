@@ -257,6 +257,8 @@ export default function Dashboard() {
             <>
               <NavItem icon={<FileText className="w-4 h-4" />} label="Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} />
               <NavItem icon={<UserIcon className="w-4 h-4" />} label="Identity" active={activeTab === "personal"} onClick={() => setActiveTab("personal")} />
+              <NavItem icon={<GraduationCap className="w-4 h-4" />} label="Academic" active={activeTab === "qualifications"} onClick={() => setActiveTab("qualifications")} />
+              <NavItem icon={<Trophy className="w-4 h-4" />} label="Portfolio" active={activeTab === "portfolio"} onClick={() => setActiveTab("portfolio")} />
             </>
           ) : (
             <>
@@ -433,6 +435,85 @@ export default function Dashboard() {
                     <textarea rows={4} value={personalData.bio} onChange={(e) => setPersonalData({...personalData, bio: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold resize-none" />
                   </div>
                   <button onClick={() => handleUpdate(personalData)} className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Update Identity</button>
+                </div>
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "qualifications" && (
+              <motion.div key="qualifications" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
+                <div className="space-y-8">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">College / University</label>
+                      <input value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">School / Higher Secondary</label>
+                      <input value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1 flex items-center gap-2"><FileText className="w-3 h-3" /> Resume URL (Google Drive / Dropbox)</label>
+                    <input value={qualData.resumeUrl} onChange={(e) => setQualData({...qualData, resumeUrl: e.target.value})} placeholder="https://..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                  </div>
+                  <button onClick={() => handleUpdate(qualData)} className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Update Academic Profile</button>
+                </div>
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "portfolio" && (
+              <motion.div key="portfolio" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                <div className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
+                  <h3 className="text-xl font-black tracking-tight mb-8">Add New Evidence</h3>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Project Title</label>
+                      <input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Detailed Description</label>
+                      <textarea rows={4} value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold resize-none" />
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        if (!newProject.title) return;
+                        setSaveLoading(true);
+                        try {
+                          const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProject) });
+                          if (res.ok) {
+                            setNewProject({ id: "", title: "", description: "" });
+                            fetchProfile();
+                            alert("Project added!");
+                          }
+                        } catch (e) { console.error(e); } finally { setSaveLoading(false); }
+                      }} 
+                      className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl"
+                    >
+                      Deploy Project to Profile
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {userData?.studentProfile?.projects?.map((p: any) => (
+                    <div key={p.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm group relative">
+                      <button 
+                        onClick={async () => {
+                          if (!confirm("Remove this evidence?")) return;
+                          try {
+                            const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
+                            if (res.ok) fetchProfile();
+                          } catch (e) { console.error(e); }
+                        }}
+                        className="absolute top-6 right-6 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <div className="w-10 h-10 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-6"><Trophy className="w-5 h-5" /></div>
+                      <h4 className="text-lg font-black tracking-tight mb-2">{p.title}</h4>
+                      <p className="text-xs text-[#7a6040] leading-relaxed line-clamp-3">{p.description}</p>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             )}
