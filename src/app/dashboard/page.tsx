@@ -240,7 +240,18 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="lg:pl-64 min-h-screen">
         <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12">
-          <header className="mb-10"><h1 className="text-4xl font-black tracking-tighter text-[#2d2013] capitalize">{activeTab === "listings" ? "My Job Listings" : activeTab.replace('company', 'Company Profile')}</h1></header>
+          <header className="mb-10">
+            <h1 className="text-4xl font-black tracking-tighter text-[#2d2013] capitalize">
+              {activeTab === "overview" && "Dashboard Overview"}
+              {activeTab === "marketplace" && "Job Marketplace"}
+              {activeTab === "applications" && "My Applications"}
+              {activeTab === "personal" && "Personal Information"}
+              {activeTab === "qualifications" && "My Qualifications"}
+              {activeTab === "portfolio" && "Project Portfolio"}
+              {activeTab === "company" && "Company Profile"}
+              {activeTab === "listings" && "My Job Listings"}
+            </h1>
+          </header>
 
           <AnimatePresence mode="wait">
             {activeTab === "overview" && (
