@@ -29,7 +29,8 @@ import {
   FileText,
   Building,
   Edit3,
-  Upload
+  Upload,
+  Users
 } from "lucide-react";
 
 type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
@@ -480,7 +481,7 @@ export default function Dashboard() {
                             {!viewingProfile.user?.studentProfile?.projects?.length ? (
                               <p className="text-xs italic text-[#7a6040]">No projects added yet.</p>
                             ) : (
-                              viewingProfile.user.studentProfile.projects.map((p: any) => (
+                              viewingProfile.user?.studentProfile?.projects?.map((p: any) => (
                                 <div key={p.id} className="p-6 bg-[#2d2013] text-[#fdf6e3] rounded-3xl shadow-sm">
                                   <h5 className="font-black mb-2">{p.title}</h5>
                                   <p className="text-[10px] opacity-80 leading-relaxed mb-4">{p.description}</p>
