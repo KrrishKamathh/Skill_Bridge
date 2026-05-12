@@ -721,7 +721,7 @@ export default function Dashboard() {
                   <p className="text-xs font-bold text-[#2d2013]">Deploy your professional evidence to this role.</p>
                 </div>
                 <div className="flex-1 max-w-md bg-[#2d2013] text-white py-5 rounded-3xl font-black uppercase tracking-widest text-center shadow-2xl hover:bg-[#cb4b16] hover:scale-[1.02] transition-all cursor-pointer text-xs" onClick={() => { handleApply(viewingJob.id); setViewingJob(null); }}>
-                  Deploy Verified Application
+                  Apply
                 </div>
               </div>
             </motion.div>
