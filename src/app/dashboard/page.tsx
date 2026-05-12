@@ -37,14 +37,14 @@ type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "pe
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
+  const [activeTab, setActiveTab] = useState<DashboardTab>("marketplace");
   const [userData, setUserData] = useState<any>(null);
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
 
   // Form States
-  const [personalData, setPersonalData] = useState({ dob: "", location: "", bio: "", username: "" });
+  const [personalData, setPersonalData] = useState({ dob: "", location: "", bio: "", username: "", githubUrl: "", linkedinUrl: "" });
   const [qualData, setQualData] = useState({ college: "", school: "", resumeUrl: "" });
   const [newProject, setNewProject] = useState({ id: "", title: "", description: "" });
   const [recruiterData, setRecruiterData] = useState({ companyName: "", designation: "", publicBio: "" });
@@ -57,6 +57,33 @@ export default function Dashboard() {
   const [talentPool, setTalentPool] = useState<any[]>([]);
   const [myApplications, setMyApplications] = useState<any[]>([]);
   const [marketplaceJobs, setMarketplaceJobs] = useState<any[]>([]);
+
+  // UI States
+  const [sidebarWidth, setSidebarWidth] = useState(260);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const startResizing = (e: any) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: any) => {
+      if (!isResizing) return;
+      let newWidth = e.clientX;
+      if (newWidth < 200) newWidth = 200;
+      if (newWidth > 450) newWidth = 450;
+      setSidebarWidth(newWidth);
+    };
+    const handleMouseUp = () => setIsResizing(false);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
 
   const userRole = (session?.user as any)?.role || "STUDENT";
   const router = useRouter();
@@ -76,7 +103,14 @@ export default function Dashboard() {
         if (res.ok) {
           setUserData(data);
           if (data.studentProfile) {
-            setPersonalData({ dob: data.studentProfile.dob?.split('T')[0] || "", location: data.studentProfile.location || "", bio: data.studentProfile.bio || "", username: data.username || "" });
+            setPersonalData({ 
+              dob: data.studentProfile.dob?.split('T')[0] || "", 
+              location: data.studentProfile.location || "", 
+              bio: data.studentProfile.bio || "", 
+              username: data.username || "",
+              githubUrl: data.studentProfile.githubUrl || "",
+              linkedinUrl: data.studentProfile.linkedinUrl || ""
+            });
             setQualData({ college: data.studentProfile.college || "", school: data.studentProfile.school || "", resumeUrl: data.studentProfile.resumeUrl || "" });
           }
           if (data.recruiterProfile) {
@@ -196,14 +230,28 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-[#fdf6e3] text-[#2d2013] font-sans selection:bg-[#cb4b16]/20">
-      <aside className="fixed left-0 top-0 h-full w-64 bg-[#eee8d5] border-r border-[#cfc3a0] hidden lg:flex flex-col p-6 z-50">
+    <div className="min-h-screen bg-[#fdf6e3] text-[#2d2013] font-sans selection:bg-[#cb4b16]/20 flex">
+      
+      {/* Resizable Sidebar */}
+      <aside 
+        style={{ width: sidebarWidth }}
+        className="fixed left-0 top-0 h-full bg-[#eee8d5] border-r border-[#cfc3a0] hidden lg:flex flex-col p-6 z-50 transition-[width] duration-75 ease-out group/sidebar"
+      >
+        {/* Resize Handle */}
+        <div 
+          onMouseDown={startResizing}
+          className={`absolute right-0 top-0 w-1 h-full cursor-col-resize hover:bg-[#cb4b16] transition-colors z-50 ${isResizing ? 'bg-[#cb4b16]' : 'bg-transparent'}`}
+        />
+
         <div className="flex items-center gap-2 mb-10 px-2">
           <div className="w-8 h-8 rounded-lg bg-[#cb4b16] flex items-center justify-center shadow-lg"><div className="w-2 h-2 bg-[#fdf6e3] rounded-full" /></div>
-          <span className="font-bold text-lg tracking-tighter">SkillBridge</span>
+          <span className="font-bold text-lg tracking-tighter truncate">SkillBridge</span>
         </div>
-        <nav className="space-y-1 flex-1">
-          <NavItem icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+
+        <nav className="space-y-1 flex-1 overflow-y-auto custom-scrollbar">
+          {userRole === "RECRUITER" && (
+            <NavItem icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+          )}
           <NavItem icon={<Globe className="w-4 h-4" />} label="Job Board" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />
           {userRole === "STUDENT" ? (
             <>
@@ -217,12 +265,50 @@ export default function Dashboard() {
             </>
           )}
         </nav>
-        <div className="mt-auto pt-6 border-t border-[#cfc3a0]">
-          <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-2 w-full p-2 text-xs text-[#7a6040] hover:text-[#cb4b16] transition-colors font-bold"><LogOut className="w-4 h-4" /> Sign Out</button>
+
+        {/* Cinematic Profile Section */}
+        <div className="mt-auto pt-6 border-t border-[#cfc3a0] relative">
+          <button 
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-3 w-full p-2 rounded-2xl hover:bg-white/40 transition-all group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#2d2013] text-white flex items-center justify-center font-black text-sm shadow-md group-hover:scale-105 transition-transform">
+              {session?.user?.name?.[0]}
+            </div>
+            <div className="text-left flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#2d2013] truncate">{session?.user?.name}</p>
+              <p className="text-[8px] font-bold text-[#7a6040] truncate">{session?.user?.email}</p>
+            </div>
+          </button>
+
+          <AnimatePresence>
+            {isProfileOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }} 
+                animate={{ opacity: 1, y: 0, scale: 1 }} 
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute bottom-full left-0 w-full mb-2 bg-[#fdf6e3] border border-[#cfc3a0] rounded-2xl shadow-2xl overflow-hidden p-2 z-[60]"
+              >
+                <div className="p-3 border-b border-[#cfc3a0]/30 mb-1">
+                  <p className="text-[8px] font-black uppercase tracking-[0.2em] text-[#cb4b16]">Verified Identity</p>
+                  <p className="text-[10px] font-bold text-[#2d2013]">{userRole}</p>
+                </div>
+                <button 
+                  onClick={() => signOut({ callbackUrl: "/login" })} 
+                  className="flex items-center gap-2 w-full p-3 text-xs text-[#7a6040] hover:bg-red-500 hover:text-white transition-all rounded-xl font-black uppercase tracking-widest"
+                >
+                  <LogOut className="w-3 h-3" /> Sign Out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </aside>
 
-      <main className="lg:pl-64 min-h-screen">
+      <main 
+        style={{ paddingLeft: sidebarWidth }}
+        className="flex-1 min-h-screen transition-[padding] duration-75 ease-out"
+      >
         <div className="max-w-6xl mx-auto p-8">
           <header className="mb-10 flex justify-between items-end">
             <div>
@@ -235,30 +321,28 @@ export default function Dashboard() {
           </header>
 
           <AnimatePresence mode="wait">
-            {activeTab === "overview" && (
+            {userRole === "RECRUITER" && activeTab === "overview" && (
               <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
                 <div className="bg-[#2d2013] rounded-[3rem] p-12 text-[#fdf6e3] relative overflow-hidden shadow-2xl">
                   <div className="absolute top-0 right-0 p-12 opacity-10"><Sparkles className="w-48 h-48 rotate-12" /></div>
                   <div className="relative z-10 max-w-lg">
-                    <h2 className="text-5xl font-black tracking-tighter mb-6 leading-none">The Future of Talent is Evidence.</h2>
-                    <p className="text-[#eee8d5]/80 text-sm leading-relaxed font-medium mb-8">SkillBridge verify every project, every commit, and every skill. Welcome to the high-velocity career engine.</p>
+                    <h2 className="text-5xl font-black tracking-tighter mb-6 leading-none">Deploy Your Next Star.</h2>
+                    <p className="text-[#eee8d5]/80 text-sm leading-relaxed font-medium mb-8">Post roles, analyze evidence, and hire at the speed of thought.</p>
                   </div>
                 </div>
 
-                {userRole === "RECRUITER" && (
-                  <div className="bg-white/60 border border-[#cfc3a0] rounded-[3rem] p-10 shadow-sm">
-                    <h3 className="text-xl font-black tracking-tight mb-8">Deploy New Role</h3>
-                    <div className="space-y-4">
-                      <input type="text" value={newJob.title} onChange={(e) => setNewJob({...newJob, title: e.target.value})} placeholder="Job Title" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
-                      <div className="grid grid-cols-2 gap-4">
-                        <select value={newJob.type} onChange={(e) => setNewJob({...newJob, type: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold appearance-none"><option>Full-time</option><option>Internship</option></select>
-                        <input type="text" value={newJob.location} onChange={(e) => setNewJob({...newJob, location: e.target.value})} placeholder="Location" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
-                      </div>
-                      <textarea rows={4} value={newJob.description} onChange={(e) => setNewJob({...newJob, description: e.target.value})} placeholder="Job Description..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold resize-none" />
-                      <button onClick={handlePostJob} className="w-full py-5 bg-[#2d2013] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Post Listing</button>
+                <div className="bg-white/60 border border-[#cfc3a0] rounded-[3rem] p-10 shadow-sm">
+                  <h3 className="text-xl font-black tracking-tight mb-8">Post New Job</h3>
+                  <div className="space-y-4">
+                    <input type="text" value={newJob.title} onChange={(e) => setNewJob({...newJob, title: e.target.value})} placeholder="Job Title" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <select value={newJob.type} onChange={(e) => setNewJob({...newJob, type: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold appearance-none"><option>Full-time</option><option>Internship</option></select>
+                      <input type="text" value={newJob.location} onChange={(e) => setNewJob({...newJob, location: e.target.value})} placeholder="Location" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
                     </div>
+                    <textarea rows={4} value={newJob.description} onChange={(e) => setNewJob({...newJob, description: e.target.value})} placeholder="Job Description..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold resize-none" />
+                    <button onClick={handlePostJob} className="w-full py-5 bg-[#2d2013] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Post Listing</button>
                   </div>
-                )}
+                </div>
               </motion.div>
             )}
 
@@ -284,6 +368,72 @@ export default function Dashboard() {
                     </button>
                   </div>
                 ))}
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "applications" && (
+              <motion.div key="applications" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                {myApplications?.length === 0 ? (
+                  <div className="text-center py-20 bg-white/40 border border-[#cfc3a0] rounded-[2.5rem]">
+                    <p className="font-bold text-[#7a6040]">You haven't applied to any jobs yet.</p>
+                  </div>
+                ) : (
+                  myApplications?.map((app) => (
+                    <div key={app.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl flex items-center justify-between group hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black"><Briefcase className="w-6 h-6" /></div>
+                        <div>
+                          <h4 className="font-black text-lg">{app.job.title}</h4>
+                          <p className="text-xs font-bold text-[#cb4b16] uppercase tracking-tight">{app.job.recruiterProfile?.companyName}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-block px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                          app.status === "SHORTLISTED" ? "bg-green-500 text-white shadow-lg" : 
+                          app.status === "REJECTED" ? "bg-red-500 text-white" : 
+                          "bg-[#cb4b16] text-white"
+                        }`}>
+                          {app.status}
+                        </span>
+                        <p className="text-[10px] text-[#7a6040] mt-2 font-bold">{new Date(app.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "personal" && (
+              <motion.div key="personal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
+                <div className="space-y-8">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Username</label>
+                      <input value={personalData.username} onChange={(e) => setPersonalData({...personalData, username: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Location</label>
+                      <input value={personalData.location} onChange={(e) => setPersonalData({...personalData, location: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1 flex items-center gap-2"><Globe className="w-3 h-3" /> GitHub URL</label>
+                      <input value={personalData.githubUrl} onChange={(e) => setPersonalData({...personalData, githubUrl: e.target.value})} placeholder="https://github.com/..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1 flex items-center gap-2"><Users className="w-3 h-3" /> LinkedIn URL</label>
+                      <input value={personalData.linkedinUrl} onChange={(e) => setPersonalData({...personalData, linkedinUrl: e.target.value})} placeholder="https://linkedin.com/in/..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Bio / Mission Statement</label>
+                    <textarea rows={4} value={personalData.bio} onChange={(e) => setPersonalData({...personalData, bio: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold resize-none" />
+                  </div>
+                  <button onClick={() => handleUpdate(personalData)} className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Update Identity</button>
+                </div>
               </motion.div>
             )}
 
