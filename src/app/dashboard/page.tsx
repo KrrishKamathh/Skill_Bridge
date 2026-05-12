@@ -49,6 +49,13 @@ export default function Dashboard() {
   const [newProject, setNewProject] = useState({ id: "", title: "", description: "" });
   const [recruiterData, setRecruiterData] = useState({ companyName: "", designation: "", publicBio: "" });
   const [newJob, setNewJob] = useState({ title: "", type: "Full-time", location: "", description: "" });
+  const [viewingJob, setViewingJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [viewingProfile, setViewingProfile] = useState<any>(null);
+  const [applicants, setApplicants] = useState<any[]>([]);
+  const [talentPool, setTalentPool] = useState<any[]>([]);
+  const [myApplications, setMyApplications] = useState<any[]>([]);
+  const [marketplaceJobs, setMarketplaceJobs] = useState<any[]>([]);
 
   const userRole = (session?.user as any)?.role || "STUDENT";
 
@@ -304,18 +311,35 @@ export default function Dashboard() {
               <motion.div key="marketplace" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {marketplaceJobs.map((job) => (
-                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {job.location}</span>
-                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Just Posted</span>
+                    <div key={job.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-xl">{job.recruiterProfile?.companyName?.[0]}</div>
+                        <div className="flex flex-col items-end">
+                          <span className="px-3 py-1 rounded-full bg-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest mb-1">{job.type}</span>
+                          <span className="text-[8px] font-bold text-[#7a6040] uppercase tracking-widest">{job.location}</span>
                         </div>
-                        <p className="text-xs text-[#7a6040] leading-relaxed line-clamp-3 mb-6">{job.description}</p>
                       </div>
-                      <button 
-                        onClick={() => !job.applications?.length && handleApply(job.id)}
-                        disabled={job.applications?.length > 0}
-                        className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${job.applications?.length > 0 ? 'bg-[#cfc3a0] text-[#7a6040] cursor-not-allowed' : 'bg-[#cb4b16] text-white hover:scale-[1.02] shadow-lg'}`}
-                      >
-                        {job.applications?.length > 0 ? "Application Sent" : "Quick Apply"}
-                      </button>
+                      <h4 className="text-lg font-black tracking-tight text-[#2d2013] mb-2">{job.title}</h4>
+                      <p className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest mb-4">{job.recruiterProfile?.companyName}</p>
+                      <p className="text-xs text-[#7a6040] line-clamp-3 leading-relaxed mb-8">{job.description}</p>
+                      <div className="mt-auto flex items-center justify-between gap-4">
+                        <button 
+                          onClick={() => setViewingJob(job)} 
+                          className="flex-1 bg-[#2d2013] text-[#fdf6e3] py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] transition-all"
+                        >
+                          View Details
+                        </button>
+                        {job.hasApplied ? (
+                          <div className="px-4 py-4 rounded-2xl bg-green-500/10 text-green-600 font-black uppercase tracking-widest text-[8px] border border-green-500/20">Applied ✓</div>
+                        ) : (
+                          <button 
+                            onClick={() => handleApply(job.id)} 
+                            className="p-4 rounded-2xl bg-white border border-[#cfc3a0] text-[#7a6040] hover:bg-[#2d2013] hover:text-[#fdf6e3] transition-all"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
