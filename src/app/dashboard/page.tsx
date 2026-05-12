@@ -42,7 +42,7 @@ export default function Dashboard() {
   const [saveLoading, setSaveLoading] = useState(false);
 
   // Form States
-  const [personalData, setPersonalData] = useState({ dob: "", location: "" });
+  const [personalData, setPersonalData] = useState({ dob: "", location: "", bio: "", username: "" });
   const [qualData, setQualData] = useState({ college: "", school: "", resumeUrl: "" });
   const [newProject, setNewProject] = useState({ id: "", title: "", description: "" });
   const [recruiterData, setRecruiterData] = useState({ companyName: "", designation: "", publicBio: "" });
@@ -74,7 +74,12 @@ export default function Dashboard() {
 
         setUserData(data);
         if (data.studentProfile) {
-          setPersonalData({ dob: data.studentProfile.dob?.split('T')[0] || "", location: data.studentProfile.location || "" });
+          setPersonalData({ 
+            dob: data.studentProfile.dob?.split('T')[0] || "", 
+            location: data.studentProfile.location || "",
+            bio: data.studentProfile.bio || "",
+            username: data.username || "" 
+          });
           setQualData({ college: data.studentProfile.college || "", school: data.studentProfile.school || "", resumeUrl: data.studentProfile.resumeUrl || "" });
         }
         if (data.recruiterProfile) {
@@ -468,8 +473,14 @@ export default function Dashboard() {
               <motion.div key="personal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-2xl bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-8 md:p-12 shadow-sm">
                 <div className="space-y-8">
                   <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Public Username</label>
+                      <input type="text" value={personalData.username} onChange={(e) => setPersonalData({...personalData, username: e.target.value})} placeholder="yourname" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                      {personalData.username && <p className="text-[10px] font-bold text-[#cb4b16] mt-1 italic">Your Link: skill-bridge-khaki-gamma.vercel.app/u/{personalData.username.toLowerCase().replace(/[^a-z0-9]/g, '')}</p>}
+                    </div>
                     <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Birth Date</label><input type="date" value={personalData.dob} onChange={(e) => setPersonalData({...personalData, dob: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
                     <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Location</label><input type="text" value={personalData.location} onChange={(e) => setPersonalData({...personalData, location: e.target.value})} placeholder="City, Country" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Short Bio</label><textarea rows={3} value={personalData.bio} onChange={(e) => setPersonalData({...personalData, bio: e.target.value})} placeholder="Tell the world what you do..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold resize-none" /></div>
                   </div>
                   <button onClick={() => handleUpdate(personalData)} disabled={saveLoading} className="bg-[#2d2013] text-[#fdf6e3] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Save Personal Info</button>
                 </div>

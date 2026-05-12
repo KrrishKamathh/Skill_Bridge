@@ -14,6 +14,13 @@ export async function POST(req: Request) {
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
+    if (data.username) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { username: data.username.toLowerCase().trim().replace(/[^a-z0-9]/g, '') }
+      });
+    }
+
     if (userRole === "STUDENT") {
       await prisma.studentProfile.upsert({
         where: { userId },
