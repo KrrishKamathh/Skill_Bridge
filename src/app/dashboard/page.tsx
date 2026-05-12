@@ -449,34 +449,34 @@ export default function Dashboard() {
 
                 {/* JOB INTELLIGENCE MODAL (STUDENT) */}
                 {viewingJob && (
-                  <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[150] flex items-center justify-center p-4">
+                  <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
                     <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#fdf6e3] w-full max-w-3xl rounded-[3rem] shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]">
-                      <button onClick={() => setViewingJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[160] bg-white/80 rounded-full shadow-sm"><Plus className="w-6 h-6 rotate-45" /></button>
+                      <button onClick={() => setViewingJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[210] bg-white/80 rounded-full shadow-sm"><Plus className="w-6 h-6 rotate-45" /></button>
                       
                       <div className="flex-1 overflow-y-auto p-10 md:p-14 custom-scrollbar">
                         <div className="flex items-center gap-6 mb-12">
-                          <div className="w-20 h-20 rounded-3xl bg-[#2d2013] text-white flex items-center justify-center text-3xl font-black shadow-xl">{viewingJob.recruiterProfile?.companyName?.[0]}</div>
+                          <div className="w-20 h-20 rounded-3xl bg-[#2d2013] text-white flex items-center justify-center text-3xl font-black shadow-xl">{viewingJob.recruiterProfile?.companyName?.[0] || "S"}</div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#cb4b16] mb-1">{viewingJob.recruiterProfile?.companyName}</p>
-                            <h2 className="text-4xl font-black tracking-tighter leading-none">{viewingJob.title}</h2>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#cb4b16] mb-1">{viewingJob.recruiterProfile?.companyName || "Verified Partner"}</p>
+                            <h2 className="text-4xl font-black tracking-tighter leading-none">{viewingJob.title || "Job Opportunity"}</h2>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-12">
                           <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0]">
                             <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Role Type</p>
-                            <p className="font-bold text-[#2d2013]">{viewingJob.type}</p>
+                            <p className="font-bold text-[#2d2013]">{viewingJob.type || viewingJob.jobType || "Full-time"}</p>
                           </div>
                           <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0]">
                             <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Hiring Location</p>
-                            <p className="font-bold text-[#2d2013]">{viewingJob.location}</p>
+                            <p className="font-bold text-[#2d2013]">{viewingJob.location || "Remote"}</p>
                           </div>
                         </div>
 
                         <section className="mb-12">
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> Mission & Description</h4>
                           <p className="text-lg text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap">
-                            {viewingJob.description}
+                            {viewingJob.description || "No description provided for this role."}
                           </p>
                         </section>
 
@@ -486,7 +486,7 @@ export default function Dashboard() {
                             <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60">Verified SkillBridge Listing</h4>
                           </div>
                           <p className="text-xs leading-relaxed opacity-80">
-                            This listing has been verified by the SkillBridge integrity team. By applying, your verified profile and evidence portfolio will be shared directly with the {viewingJob.recruiterProfile?.companyName} hiring team.
+                            This listing has been verified by the SkillBridge integrity team. By applying, your verified profile and evidence portfolio will be shared directly with the {viewingJob.recruiterProfile?.companyName || "hiring team"}.
                           </p>
                         </section>
                       </div>
@@ -496,7 +496,7 @@ export default function Dashboard() {
                            <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Ready to deploy?</p>
                            <p className="text-xs font-bold text-[#2d2013]">Confirm your application below.</p>
                         </div>
-                        {viewingJob.hasApplied ? (
+                        {viewingJob.hasApplied || (marketplaceJobs.find(j => j.id === viewingJob.id)?.hasApplied) ? (
                           <div className="px-10 py-5 rounded-2xl bg-green-500/10 text-green-600 font-black uppercase tracking-widest text-xs border border-green-500/20">Application Sent ✓</div>
                         ) : (
                           <button 
