@@ -28,7 +28,8 @@ import {
   Trash2,
   FileText,
   Building,
-  Edit3
+  Edit3,
+  Upload
 } from "lucide-react";
 
 type DashboardTab = "overview" | "marketplace" | "applications" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
@@ -499,8 +500,35 @@ export default function Dashboard() {
                     <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Current College/University</label><input type="text" value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
                     <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Previous School</label><input type="text" value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" /></div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Resume Link (Drive/Dropbox)</label>
-                      <input type="text" value={qualData.resumeUrl} onChange={(e) => setQualData({...qualData, resumeUrl: e.target.value})} placeholder="https://drive.google.com/..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Professional Resume (PDF)</label>
+                      <div className="flex items-center gap-4">
+                        <label className="flex-1 cursor-pointer group">
+                          <div className="w-full px-6 py-8 rounded-3xl bg-[#fdf6e3] border-2 border-dashed border-[#cfc3a0] group-hover:border-[#cb4b16] transition-all flex flex-col items-center justify-center gap-2">
+                            <Upload className="w-6 h-6 text-[#7a6040] group-hover:text-[#cb4b16] group-hover:scale-110 transition-all" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">{qualData.resumeUrl ? "Change Resume" : "Browse Files"}</span>
+                            {qualData.resumeUrl && <span className="text-[8px] font-bold text-green-600 uppercase">File Attached ✓</span>}
+                          </div>
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 1024 * 1024 * 2) { // 2MB Limit for Base64
+                                  alert("File is too large! Please use a PDF under 2MB.");
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setQualData({ ...qualData, resumeUrl: reader.result as string });
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }} 
+                          />
+                        </label>
+                      </div>
                     </div>
                   </div>
                   <button onClick={() => handleUpdate(qualData)} disabled={saveLoading} className="bg-[#2d2013] text-[#fdf6e3] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Save Qualifications</button>
