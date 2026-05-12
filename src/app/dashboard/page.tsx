@@ -73,21 +73,23 @@ export default function Dashboard() {
           return;
         }
 
-        setUserData(data);
-        if (data.studentProfile) {
-          setPersonalData({ 
-            dob: data.studentProfile.dob?.split('T')[0] || "", 
-            location: data.studentProfile.location || "",
-            bio: data.studentProfile.bio || "",
-            username: data.username || "" 
-          });
-          setQualData({ college: data.studentProfile.college || "", school: data.studentProfile.school || "", resumeUrl: data.studentProfile.resumeUrl || "" });
-        }
-        if (data.recruiterProfile) {
-          setRecruiterData({ companyName: data.recruiterProfile.companyName || "", designation: data.recruiterProfile.designation || "", publicBio: data.recruiterProfile.publicBio || "" });
-          const jRes = await fetch("/api/jobs");
-          const jData = await jRes.json();
-          setJobs(jData);
+        if (res.ok) {
+          setUserData(data);
+          if (data.studentProfile) {
+            setPersonalData({ 
+              dob: data.studentProfile.dob?.split('T')[0] || "", 
+              location: data.studentProfile.location || "",
+              bio: data.studentProfile.bio || "",
+              username: data.username || "" 
+            });
+            setQualData({ college: data.studentProfile.college || "", school: data.studentProfile.school || "", resumeUrl: data.studentProfile.resumeUrl || "" });
+          }
+          if (data.recruiterProfile) {
+            setRecruiterData({ companyName: data.recruiterProfile.companyName || "", designation: data.recruiterProfile.designation || "", publicBio: data.recruiterProfile.publicBio || "" });
+            const jRes = await fetch("/api/jobs");
+            const jData = await jRes.json();
+            if (Array.isArray(jData)) setJobs(jData);
+          }
         }
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
@@ -97,33 +99,43 @@ export default function Dashboard() {
 
   const fetchMarketplace = async () => {
     try {
-      const res = await fetch("/api/jobs/marketplace");
+      const res = await fetch("/api/jobs/marketplace", { cache: 'no-store' });
       const data = await res.json();
-      setMarketplaceJobs(data);
+      if (res.ok && Array.isArray(data)) setMarketplaceJobs(data);
     } catch (e) { console.error(e); }
   };
 
   const handleApply = async (jobId: string) => {
+    console.log("Applying for job:", jobId);
     try {
       const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobId })
       });
+      const data = await res.json();
+      console.log("Apply response:", data);
+      
       if (res.ok) {
         alert("Application sent successfully!");
         fetchMarketplace();
+        fetchMyApplications();
+      } else {
+        alert(data.message || "Failed to apply");
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error("Apply error:", e);
+      alert("Error sending application");
+    }
   };
 
   const [myApplications, setMyApplications] = useState<any[]>([]);
 
   const fetchMyApplications = async () => {
     try {
-      const res = await fetch("/api/applications/my");
+      const res = await fetch("/api/applications/my", { cache: 'no-store' });
       const data = await res.json();
-      setMyApplications(data);
+      if (res.ok && Array.isArray(data)) setMyApplications(data);
     } catch (e) { console.error(e); }
   };
 
@@ -133,7 +145,7 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/students/browse");
       const data = await res.json();
-      setTalentPool(data);
+      if (res.ok && Array.isArray(data)) setTalentPool(data);
     } catch (e) { console.error(e); }
   };
 
@@ -164,8 +176,10 @@ export default function Dashboard() {
     try {
       const res = await fetch(`/api/jobs/${jobId}/applicants`);
       const data = await res.json();
-      setApplicants(data);
-      setSelectedJob(jobId);
+      if (res.ok && Array.isArray(data)) {
+        setApplicants(data);
+        setSelectedJob(jobId);
+      }
     } catch (e) { console.error(e); }
   };
 
