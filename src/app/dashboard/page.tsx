@@ -364,9 +364,13 @@ export default function Dashboard() {
             {activeTab === "marketplace" && (
               <motion.div key="marketplace" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {marketplaceJobs.map((job) => (
-                  <div key={job.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
+                  <div 
+                    key={job.id} 
+                    onClick={() => setViewingJob(job)}
+                    className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col h-full cursor-pointer hover:scale-[1.02]"
+                  >
                     <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-xl">{job.recruiterProfile?.companyName?.[0]}</div>
+                      <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-xl shadow-lg group-hover:bg-[#cb4b16] transition-colors">{job.recruiterProfile?.companyName?.[0]}</div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 text-[8px] font-black uppercase tracking-widest border border-orange-500/20">
                           <Sparkles className="w-2 h-2" /> {85 + (job.title.length % 15)}% Match
@@ -378,12 +382,9 @@ export default function Dashboard() {
                     <h4 className="text-lg font-black tracking-tight text-[#2d2013] mb-2">{job.title}</h4>
                     <p className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest mb-4">{job.recruiterProfile?.companyName}</p>
                     <p className="text-xs text-[#7a6040] line-clamp-3 leading-relaxed mb-8">{job.description}</p>
-                    <button 
-                      onClick={() => setViewingJob(job)} 
-                      className="mt-auto w-full bg-[#2d2013] text-[#fdf6e3] py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] transition-all"
-                    >
-                      View Intelligence
-                    </button>
+                    <div className="mt-auto w-full bg-[#2d2013]/5 text-[#2d2013] py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] group-hover:bg-[#cb4b16] group-hover:text-white transition-all text-center">
+                      Analyze Role
+                    </div>
                   </div>
                 ))}
               </motion.div>
