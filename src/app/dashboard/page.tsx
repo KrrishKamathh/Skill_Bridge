@@ -124,13 +124,15 @@ export default function Dashboard() {
           setActiveTab("overview");
         }
 
-        if (!data.studentProfile && !data.recruiterProfile) {
-          router.push("/onboarding");
-          return;
-        }
-
         if (res.ok) {
           setUserData(data);
+          
+          // Only redirect if we ARE CERTAIN there's no profile and it's not a fresh load
+          if (!data.studentProfile && !data.recruiterProfile) {
+            console.warn("No profile found for user, redirecting to onboarding...");
+            router.push("/onboarding");
+            return;
+          }
           if (data.studentProfile) {
             setPersonalData({ 
               dob: data.studentProfile.dob?.split('T')[0] || "", 

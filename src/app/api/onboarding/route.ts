@@ -12,7 +12,11 @@ export async function POST(req: Request) {
 
     const data = await req.json();
     const userId = (session.user as any).id;
-    const userRole = (session.user as any).role;
+    
+    // Fetch live user data to avoid stale session roles
+    const dbUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!dbUser) return NextResponse.json({ message: "User not found" }, { status: 404 });
+    const userRole = dbUser.role;
 
     if (data.username) {
       await prisma.user.update({
