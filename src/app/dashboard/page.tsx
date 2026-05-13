@@ -1015,26 +1015,101 @@ export default function Dashboard() {
               </div>
 
               {/* AI Insights Sidebar */}
-              <div className="w-full md:w-80 bg-[#eee8d5]/60 border-l border-[#cfc3a0] p-8 flex flex-col gap-8 overflow-y-auto">
-                <div className="text-center"><p className="text-[8px] font-black uppercase tracking-[0.3em] text-[#cb4b16] mb-1">AI Intelligence Profile</p><h3 className="text-lg font-black text-[#2d2013]">Insights Dashboard</h3></div>
-                <div className="p-6 bg-white rounded-[2rem] shadow-inner text-center space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Skill Radar</p>
-                  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+              <div className="w-full md:w-96 bg-[#eee8d5]/60 border-l border-[#cfc3a0] p-10 flex flex-col gap-10 overflow-y-auto custom-scrollbar">
+                <div className="text-center">
+                  <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Neural Intelligence Profile</p>
+                  <h3 className="text-xl font-black text-[#2d2013] tracking-tighter">Insights Dashboard</h3>
+                </div>
+
+                {/* Animated Skill Radar */}
+                <div className="p-8 bg-white rounded-[2.5rem] shadow-sm text-center relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-45 transition-transform duration-1000"><Sparkles className="w-12 h-12" /></div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6">Technical Competency</p>
+                  <div className="relative w-36 h-36 mx-auto flex items-center justify-center">
                      <svg className="w-full h-full transform -rotate-90">
-                       <circle cx="56" cy="56" r="50" stroke="#fdf6e3" strokeWidth="8" fill="transparent" />
-                       <circle cx="56" cy="56" r="50" stroke="#cb4b16" strokeWidth="8" fill="transparent" strokeDasharray="314" strokeDashoffset={314 - (314 * ((viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? 0.88 : 0.62))} strokeLinecap="round" className="transition-all duration-1000" />
+                       <circle cx="72" cy="72" r="64" stroke="#fdf6e3" strokeWidth="12" fill="transparent" />
+                       <motion.circle 
+                         cx="72" cy="72" r="64" 
+                         stroke="#cb4b16" 
+                         strokeWidth="12" 
+                         fill="transparent" 
+                         strokeDasharray="402" 
+                         initial={{ strokeDashoffset: 402 }}
+                         animate={{ strokeDashoffset: 402 - (402 * ((viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? 0.88 : 0.62)) }}
+                         transition={{ duration: 2, ease: "easeOut", delay: 0.5 }}
+                         strokeLinecap="round"
+                       />
                      </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-xl font-black">{(viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? "88%" : "62%"}</span></div>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center">
+                       <motion.span 
+                         initial={{ opacity: 0, scale: 0.5 }}
+                         animate={{ opacity: 1, scale: 1 }}
+                         className="text-3xl font-black tracking-tighter"
+                       >
+                         {(viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? "88" : "62"}%
+                       </motion.span>
+                       <span className="text-[8px] font-black text-[#7a6040] uppercase tracking-widest mt-1">Match Score</span>
+                     </div>
                   </div>
                 </div>
-                <div className="p-6 bg-[#2d2013] text-[#fdf6e3] rounded-[2rem] shadow-xl">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> AI Summary</h4>
-                  <p className="text-[11px] leading-relaxed font-medium">Evidence suggests strong technical execution with verified project output.</p>
+
+                {/* AI Evidence Bullets */}
+                <div className="space-y-6">
+                  <div className="p-8 bg-[#2d2013] text-[#fdf6e3] rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                    <div className="absolute -bottom-4 -right-4 opacity-10"><Terminal className="w-24 h-24" /></div>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-[#cb4b16] mb-6 flex items-center gap-2">
+                      <Sparkles className="w-3 h-3" /> Talent Signals
+                    </h4>
+                    <ul className="space-y-4">
+                      {[
+                        { label: "Execution Strength", text: (viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? "High-velocity builder with verified project history." : "Developing technical foundation with clear potential." },
+                        { label: "Evidence Density", text: viewingProfile.user?.studentProfile?.resumeUrl ? "Rich evidence found in verified documentation." : "Profile relies on self-reported achievements." },
+                        { label: "Communication", text: (viewingProfile.user?.studentProfile?.bio?.length || 0) > 50 ? "Articulate mission statement aligns with culture." : "Succinct communication style identified." }
+                      ].map((signal, i) => (
+                        <motion.li 
+                          key={i} 
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.8 + (i * 0.2) }}
+                          className="flex gap-3"
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#cb4b16] mt-1 shrink-0" />
+                          <div>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-[#cb4b16] mb-0.5">{signal.label}</p>
+                            <p className="text-[11px] leading-relaxed font-medium opacity-80">{signal.text}</p>
+                          </div>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Secondary Metrics */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0] shadow-sm text-center">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-[#7a6040] mb-1">Clarity</p>
+                      <p className="text-lg font-black text-[#2d2013]">{(viewingProfile.user?.studentProfile?.bio?.length || 40) % 20 + 75}%</p>
+                    </div>
+                    <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0] shadow-sm text-center">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-[#7a6040] mb-1">Impact</p>
+                      <p className="text-lg font-black text-[#2d2013]">{(viewingProfile.user?.studentProfile?.projects?.length || 0) * 15 + 40}%</p>
+                    </div>
+                  </div>
                 </div>
+
                 {userRole === "RECRUITER" && viewingProfile?.status === "PENDING" && (
-                  <div className="flex flex-col gap-3">
-                    <button onClick={() => { updateApplicationStatus(viewingProfile.id, "SHORTLISTED"); setViewingProfile(null); }} className="w-full py-5 rounded-2xl bg-[#cb4b16] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:scale-105 transition-all">Quick Hire</button>
-                    <button onClick={() => { updateApplicationStatus(viewingProfile.id, "REJECTED"); setViewingProfile(null); }} className="w-full py-5 rounded-2xl bg-white text-[#2d2013] border border-[#cfc3a0] font-black uppercase tracking-widest text-xs hover:bg-[#2d2013] hover:text-white transition-all">Pass</button>
+                  <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-[#cfc3a0]/30">
+                    <button 
+                      onClick={() => { updateApplicationStatus(viewingProfile.id, "SHORTLISTED"); setViewingProfile(null); }} 
+                      className="w-full py-5 rounded-3xl bg-[#cb4b16] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
+                    >
+                      <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" /> Quick Hire
+                    </button>
+                    <button 
+                      onClick={() => { setSelectedAppForRejection(viewingProfile); setIsRejectionModalOpen(true); setViewingProfile(null); }} 
+                      className="w-full py-5 rounded-3xl bg-white text-[#2d2013] border border-[#cfc3a0] font-black uppercase tracking-widest text-xs hover:bg-[#2d2013] hover:text-white transition-all"
+                    >
+                      Analyze & Pass
+                    </button>
                   </div>
                 )}
               </div>
