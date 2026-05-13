@@ -130,7 +130,11 @@ export default function Dashboard() {
             setQualData({ college: data.studentProfile.college || "", school: data.studentProfile.school || "", resumeUrl: data.studentProfile.resumeUrl || "" });
           }
           if (data.recruiterProfile) {
-            setRecruiterData({ companyName: data.recruiterProfile.companyName || "", publicBio: data.recruiterProfile.publicBio || "" });
+            setRecruiterData({ 
+              companyName: data.recruiterProfile.companyName || "", 
+              designation: data.recruiterProfile.designation || "",
+              publicBio: data.recruiterProfile.publicBio || "" 
+            });
             setJobs(data.recruiterProfile.jobs || []);
           }
         }
@@ -338,6 +342,46 @@ export default function Dashboard() {
           </header>
 
           <AnimatePresence mode="wait">
+            {userRole === "RECRUITER" && activeTab === "company" && (
+              <motion.div key="company" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl space-y-8">
+                <div className="bg-[#2d2013] rounded-[2.5rem] p-10 text-[#fdf6e3] shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-10 opacity-10"><Building className="w-32 h-32 rotate-12" /></div>
+                  <div className="relative z-10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Verified Recruiter</p>
+                    <h3 className="text-3xl font-black tracking-tighter mb-4">Corporate Identity</h3>
+                    <p className="text-xs text-[#eee8d5]/60 font-medium leading-relaxed">Manage how your company appears to the global talent pool. A complete profile increases application quality by 40%.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 border border-[#cfc3a0] rounded-[3rem] p-10 shadow-sm">
+                  <div className="space-y-8">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Company Name</label>
+                        <input value={recruiterData.companyName} onChange={(e) => setRecruiterData({...recruiterData, companyName: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Your Designation</label>
+                        <input value={recruiterData.designation} onChange={(e) => setRecruiterData({...recruiterData, designation: e.target.value})} placeholder="e.g. Senior Talent Scout" className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Corporate Mission / Public Bio</label>
+                      <textarea rows={5} value={recruiterData.publicBio} onChange={(e) => setRecruiterData({...recruiterData, publicBio: e.target.value})} placeholder="Describe your company culture and mission..." className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold resize-none" />
+                    </div>
+
+                    <button 
+                      onClick={() => handleUpdate(recruiterData)} 
+                      className="w-full py-5 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl"
+                    >
+                      Update Brand Identity
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {userRole === "RECRUITER" && activeTab === "overview" && (
               <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
                 {/* Hiring Momentum Stats */}
