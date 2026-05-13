@@ -1022,10 +1022,10 @@ export default function Dashboard() {
                 </div>
 
                 {/* Animated Skill Radar */}
-                <div className="py-12 bg-white rounded-[3rem] shadow-sm flex items-center justify-center relative overflow-hidden group">
+                <div className="h-64 bg-white rounded-[3rem] shadow-sm flex items-center justify-center relative group">
                   <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-90 transition-transform duration-1000"><Sparkles className="w-16 h-16" /></div>
                   <div className="relative w-48 h-48 flex items-center justify-center">
-                     <svg className="w-full h-full transform -rotate-90">
+                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 192 192">
                        <circle cx="96" cy="96" r="80" stroke="#fdf6e3" strokeWidth="16" fill="transparent" />
                        <motion.circle 
                          cx="96" cy="96" r="80" 
