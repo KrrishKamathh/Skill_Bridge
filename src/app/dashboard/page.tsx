@@ -1022,33 +1022,33 @@ export default function Dashboard() {
                 </div>
 
                 {/* Animated Skill Radar */}
-                <div className="p-8 bg-white rounded-[2.5rem] shadow-sm text-center relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-45 transition-transform duration-1000"><Sparkles className="w-12 h-12" /></div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6">Technical Competency</p>
-                  <div className="relative w-36 h-36 mx-auto flex items-center justify-center">
+                <div className="py-12 bg-white rounded-[3rem] shadow-sm flex items-center justify-center relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-90 transition-transform duration-1000"><Sparkles className="w-16 h-16" /></div>
+                  <div className="relative w-48 h-48 flex items-center justify-center">
                      <svg className="w-full h-full transform -rotate-90">
-                       <circle cx="72" cy="72" r="64" stroke="#fdf6e3" strokeWidth="12" fill="transparent" />
+                       <circle cx="96" cy="96" r="80" stroke="#fdf6e3" strokeWidth="16" fill="transparent" />
                        <motion.circle 
-                         cx="72" cy="72" r="64" 
+                         cx="96" cy="96" r="80" 
                          stroke="#cb4b16" 
-                         strokeWidth="12" 
+                         strokeWidth="16" 
                          fill="transparent" 
-                         strokeDasharray="402" 
-                         initial={{ strokeDashoffset: 402 }}
-                         animate={{ strokeDashoffset: 402 - (402 * ((viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? 0.88 : 0.62)) }}
-                         transition={{ duration: 2, ease: "easeOut", delay: 0.5 }}
+                         strokeDasharray="503" 
+                         initial={{ strokeDashoffset: 503 }}
+                         animate={{ strokeDashoffset: 503 - (503 * ((viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? 0.88 : 0.62)) }}
+                         transition={{ duration: 2, ease: "circOut", delay: 0.5 }}
                          strokeLinecap="round"
                        />
                      </svg>
                      <div className="absolute inset-0 flex flex-col items-center justify-center">
                        <motion.span 
-                         initial={{ opacity: 0, scale: 0.5 }}
-                         animate={{ opacity: 1, scale: 1 }}
-                         className="text-3xl font-black tracking-tighter"
+                         initial={{ opacity: 0, y: 10 }}
+                         animate={{ opacity: 1, y: 0 }}
+                         transition={{ delay: 1 }}
+                         className="text-5xl font-black tracking-tighter text-[#2d2013]"
                        >
                          {(viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? "88" : "62"}%
                        </motion.span>
-                       <span className="text-[8px] font-black text-[#7a6040] uppercase tracking-widest mt-1">Match Score</span>
+                       <span className="text-[10px] font-black text-[#cb4b16] uppercase tracking-[0.2em] mt-1">Intelligence</span>
                      </div>
                   </div>
                 </div>
