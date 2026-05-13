@@ -16,7 +16,22 @@ export async function GET() {
         studentProfile: {
           include: { projects: true }
         },
-        recruiterProfile: true
+        recruiterProfile: {
+          include: {
+            jobs: {
+              include: {
+                applications: {
+                  include: {
+                    user: {
+                      select: { id: true, name: true, email: true }
+                    }
+                  }
+                }
+              },
+              orderBy: { createdAt: "desc" }
+            }
+          }
+        }
       }
     });
 
