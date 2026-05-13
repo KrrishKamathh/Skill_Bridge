@@ -47,6 +47,7 @@ model StudentProfile {
   dob          DateTime?
   school       String?
   college      String?
+  cgpa         Float?
   achievements String?   // Stored as text/markdown
   resumeUrl    String?
   location     String?

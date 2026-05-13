@@ -49,7 +49,7 @@ export default function Dashboard() {
 
   // Form States
   const [personalData, setPersonalData] = useState({ dob: "", location: "", bio: "", username: "", githubUrl: "", linkedinUrl: "" });
-  const [qualData, setQualData] = useState({ college: "", school: "", resumeUrl: "" });
+  const [qualData, setQualData] = useState({ college: "", school: "", cgpa: "", resumeUrl: "" });
   const [newProject, setNewProject] = useState({ id: "", title: "", description: "", imageUrl: "" });
   const [recruiterData, setRecruiterData] = useState({ companyName: "", designation: "", publicBio: "" });
   const [newJob, setNewJob] = useState({ title: "", type: "Full-time", location: "", description: "" });
@@ -140,7 +140,12 @@ export default function Dashboard() {
               githubUrl: data.studentProfile.githubUrl || "",
               linkedinUrl: data.studentProfile.linkedinUrl || ""
             });
-            setQualData({ college: data.studentProfile.college || "", school: data.studentProfile.school || "", resumeUrl: data.studentProfile.resumeUrl || "" });
+            setQualData({ 
+              college: data.studentProfile.college || "", 
+              school: data.studentProfile.school || "", 
+              cgpa: data.studentProfile.cgpa?.toString() || "",
+              resumeUrl: data.studentProfile.resumeUrl || "" 
+            });
           }
           if (data.recruiterProfile) {
             setRecruiterData({ 
@@ -188,6 +193,70 @@ export default function Dashboard() {
       const data = await res.json();
       if (res.ok && Array.isArray(data)) setTalentPool(data);
     } catch (e) { console.error(e); }
+  };
+
+  // Filter States
+  const [filters, setFilters] = useState({ minCgpa: "", collegeKeyword: "", skillKeywords: "" });
+
+  const getFilteredApplicants = () => {
+    if (!applicants) return [];
+    
+    // 1. Calculate intelligence scores and assign ranks
+    const scoredApplicants = applicants.map(app => {
+      const student = app.user.studentProfile;
+      let score = 0;
+      
+      if (student) {
+        // Projects Score (max 40)
+        score += Math.min((student.projects?.length || 0) * 10, 40);
+        // CGPA Score (max 30)
+        score += Math.min((student.cgpa || 0) * 3, 30);
+        // Evidence Score (Resume/Links) (max 20)
+        if (student.resumeUrl) score += 10;
+        if (student.githubUrl || student.linkedinUrl) score += 10;
+        // Bio Score (max 10)
+        score += Math.min((student.bio?.length || 0) / 20, 10);
+      }
+      
+      return { ...app, aiScore: score };
+    });
+
+    // 2. Sort by score descending
+    const sorted = scoredApplicants.sort((a, b) => b.aiScore - a.aiScore);
+
+    // 3. Filter the sorted list
+    return sorted.filter(app => {
+      const student = app.user.studentProfile;
+      if (!student) return true;
+
+      if (filters.minCgpa && student.cgpa < parseFloat(filters.minCgpa)) return false;
+
+      if (filters.collegeKeyword && !student.college?.toLowerCase().includes(filters.collegeKeyword.toLowerCase())) {
+        return false;
+      }
+
+      if (filters.skillKeywords) {
+        const keywords = filters.skillKeywords.toLowerCase().split(',').map(s => s.trim());
+        const studentContent = `${student.bio} ${student.achievements} ${student.projects?.map((p: any) => p.title + ' ' + p.description).join(' ')}`.toLowerCase();
+        
+        const synonyms: Record<string, string[]> = {
+          "aiml": ["ai", "ml", "machine learning", "artificial intelligence", "deep learning", "neural", "python", "data science"],
+          "frontend": ["react", "vue", "angular", "tailwind", "css", "html", "nextjs"],
+          "backend": ["node", "express", "java", "spring", "sql", "postgres", "prisma", "api", "rest"],
+          "fullstack": ["mern", "nextjs", "t3", "database", "ui", "ux"]
+        };
+
+        const matches = keywords.every(kw => {
+          if (studentContent.includes(kw)) return true;
+          if (synonyms[kw]?.some(syn => studentContent.includes(syn))) return true;
+          return false;
+        });
+
+        if (!matches) return false;
+      }
+
+      return true;
+    });
   };
 
   const fetchBookmarks = async () => {
@@ -689,13 +758,17 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-8">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="col-span-1 space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">CGPA</label>
+                        <input type="number" step="0.01" value={qualData.cgpa} onChange={(e) => setQualData({...qualData, cgpa: e.target.value})} placeholder="e.g. 9.2" className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                      </div>
+                      <div className="col-span-1 space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">College / University</label>
                         <input value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">School / Higher Secondary</label>
+                      <div className="col-span-1 space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Schooling</label>
                         <input value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
                       </div>
                     </div>
@@ -771,7 +844,18 @@ export default function Dashboard() {
                 {userData?.recruiterProfile?.jobs?.map((job: any) => (
                   <div key={job.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] flex flex-col shadow-sm group hover:shadow-xl transition-all">
                     <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 rounded-2xl bg-[#cb4b16]/10 text-[#cb4b16]"><Briefcase className="w-6 h-6" /></div>
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-2xl bg-[#cb4b16]/10 text-[#cb4b16]"><Briefcase className="w-6 h-6" /></div>
+                        {job.applications?.filter((a: any) => a.status === "PENDING").length > 0 && (
+                          <motion.div 
+                            initial={{ scale: 0 }} 
+                            animate={{ scale: 1 }} 
+                            className="px-3 py-1 bg-[#cb4b16] text-white text-[10px] font-black rounded-full shadow-[0_0_15px_rgba(203,75,22,0.4)] animate-pulse"
+                          >
+                            {job.applications?.filter((a: any) => a.status === "PENDING").length} NEW
+                          </motion.div>
+                        )}
+                      </div>
                       <button onClick={() => handleDeleteJob(job.id)} className="p-2 rounded-xl bg-red-500/10 text-red-600 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
                     </div>
                     <h4 className="text-lg font-black tracking-tight mb-2">{job.title}</h4>
@@ -845,18 +929,69 @@ export default function Dashboard() {
                 <h3 className="text-3xl font-black tracking-tighter">Reviewing Applicants</h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
-                {applicants?.length === 0 ? (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                {/* Advanced Filter Suite */}
+                <div className="p-10 bg-[#2d2013] rounded-[3rem] text-[#fdf6e3] shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-12 opacity-5"><Sparkles className="w-48 h-48 rotate-12" /></div>
+                  <div className="relative z-10">
+                    <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Discovery Intelligence</p>
+                    <h3 className="text-3xl font-black tracking-tighter mb-8">Filter Applicants</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Min CGPA</label>
+                        <input 
+                          type="number" 
+                          placeholder="e.g. 8.0" 
+                          value={filters.minCgpa} 
+                          onChange={(e) => setFilters({...filters, minCgpa: e.target.value})} 
+                          className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:border-[#cb4b16] transition-all font-bold text-sm" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest opacity-60">College Keyword / Tier</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. IIT, MIT..." 
+                          value={filters.collegeKeyword} 
+                          onChange={(e) => setFilters({...filters, collegeKeyword: e.target.value})} 
+                          className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:border-[#cb4b16] transition-all font-bold text-sm" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Intelligent Skill Search</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. AIML, Frontend..." 
+                          value={filters.skillKeywords} 
+                          onChange={(e) => setFilters({...filters, skillKeywords: e.target.value})} 
+                          className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:border-[#cb4b16] transition-all font-bold text-sm" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
+                {getFilteredApplicants()?.length === 0 ? (
                   <div className="md:col-span-2 py-20 bg-white/40 border border-dashed border-[#cfc3a0] rounded-[2.5rem] text-center">
-                    <p className="font-bold text-[#7a6040]">No applications received for this listing yet.</p>
+                    <p className="font-bold text-[#7a6040]">No applicants match these filters.</p>
                   </div>
                 ) : (
-                  applicants?.map((app) => (
-                    <div key={app.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-[2rem] shadow-sm flex items-center justify-between group hover:shadow-xl transition-all">
+                  getFilteredApplicants()?.map((app, index) => (
+                    <div key={app.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-[2rem] shadow-sm flex items-center justify-between group hover:shadow-xl transition-all relative overflow-hidden">
+                      {index < 3 && (
+                        <div className="absolute top-0 left-0 px-3 py-1 bg-[#cb4b16] text-white text-[8px] font-black uppercase tracking-widest rounded-br-xl shadow-lg">
+                          Rank #{index + 1} • Top Priority
+                        </div>
+                      )}
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-lg shadow-lg group-hover:bg-[#cb4b16] transition-colors">{app.user.name?.[0]}</div>
                         <div>
-                          <p className="font-black text-[#2d2013] tracking-tight">{app.user.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-black text-[#2d2013] tracking-tight">{app.user.name}</p>
+                            <span className="text-[10px] font-black text-[#cb4b16] bg-[#cb4b16]/10 px-2 py-0.5 rounded-full">{Math.round(app.aiScore)} IQ</span>
+                          </div>
                           <div className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mt-1 inline-block ${
                             app.status === "SHORTLISTED" ? "bg-green-500/10 text-green-600" : 
                             app.status === "REJECTED" ? "bg-red-500/10 text-red-600" : 

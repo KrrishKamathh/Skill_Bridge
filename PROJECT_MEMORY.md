@@ -17,6 +17,7 @@ When Sankrr says **"let's continue"**, the AI must respond with **"Hi Sankrr, le
   - Application Pipeline (Apply → Shortlist/Reject)
   - Skill-Gap Intelligence (Rejection Feedback, Missing Skills, Course Suggestions, Re-apply Window)
   - Watchlist/Bookmark System (Save jobs, dedicated tab, toggle from marketplace)
+  - Discovery Intelligence (Advanced filtering for recruiters: Min CGPA, Tiered College search, and Semantic Skill Matching)
 
 ### 📋 Next Steps
 1. **Deployment**: Push latest to GitHub → Vercel for production.
