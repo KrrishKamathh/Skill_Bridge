@@ -178,11 +178,22 @@ exports.Prisma.JobScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.BookmarkScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  jobId: 'jobId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.ApplicationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   jobId: 'jobId',
   status: 'status',
+  rejectionFeedback: 'rejectionFeedback',
+  skillGaps: 'skillGaps',
+  suggestedCourses: 'suggestedCourses',
+  reapplyDate: 'reapplyDate',
   createdAt: 'createdAt'
 };
 
@@ -236,6 +247,7 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   RecruiterProfile: 'RecruiterProfile',
   Job: 'Job',
+  Bookmark: 'Bookmark',
   Application: 'Application',
   Account: 'Account',
   Session: 'Session',

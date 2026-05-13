@@ -31,10 +31,13 @@ import {
   Edit3,
   Upload,
   Users,
-  X
+  X,
+  Bookmark,
+  BookmarkCheck,
+  Heart
 } from "lucide-react";
 
-type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings";
+type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings" | "watchlist";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -69,6 +72,16 @@ export default function Dashboard() {
   const [talentPool, setTalentPool] = useState<any[]>([]);
   const [myApplications, setMyApplications] = useState<any[]>([]);
   const [marketplaceJobs, setMarketplaceJobs] = useState<any[]>([]);
+
+  // Rejection & Skill-Gap States
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+  const [selectedAppForRejection, setSelectedAppForRejection] = useState<any>(null);
+  const [rejectionForm, setRejectionForm] = useState({ feedback: "", skills: "", courses: "" });
+  const [viewingSkillGap, setViewingSkillGap] = useState<any>(null);
+
+  // Watchlist States
+  const [bookmarks, setBookmarks] = useState<any[]>([]);
+  const [bookmarkedJobIds, setBookmarkedJobIds] = useState<Set<string>>(new Set());
 
   // UI States
   const [sidebarWidth, setSidebarWidth] = useState(260);
@@ -177,11 +190,34 @@ export default function Dashboard() {
     } catch (e) { console.error(e); }
   };
 
+  const fetchBookmarks = async () => {
+    try {
+      const res = await fetch("/api/bookmarks", { cache: 'no-store' });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data)) {
+        setBookmarks(data);
+        setBookmarkedJobIds(new Set(data.map((b: any) => b.jobId)));
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const toggleBookmark = async (jobId: string) => {
+    try {
+      if (bookmarkedJobIds.has(jobId)) {
+        await fetch("/api/bookmarks", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jobId }) });
+      } else {
+        await fetch("/api/bookmarks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jobId }) });
+      }
+      fetchBookmarks();
+    } catch (e) { console.error(e); }
+  };
+
   useEffect(() => { 
     fetchProfile(); 
     if (userRole === "STUDENT") {
       fetchMarketplace();
       fetchMyApplications();
+      fetchBookmarks();
     } else {
       fetchTalent();
     }
@@ -207,15 +243,17 @@ export default function Dashboard() {
     } catch (e) { console.error(e); }
   };
 
-  const updateApplicationStatus = async (appId: string, status: string) => {
+  const updateApplicationStatus = async (appId: string, status: string, extraData: any = {}) => {
     try {
       const res = await fetch(`/api/applications/${appId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, ...extraData })
       });
       if (res.ok) {
-        fetchApplicants(selectedJob);
+        if (selectedJob) fetchApplicants(selectedJob);
+        setIsRejectionModalOpen(false);
+        setRejectionForm({ feedback: "", skills: "", courses: "" });
       }
     } catch (e) { console.error(e); }
   };
@@ -276,6 +314,7 @@ export default function Dashboard() {
               <NavItem icon={<Trophy className="w-4 h-4" />} label="Dossier" active={activeTab === "qualifications"} onClick={() => setActiveTab("qualifications")} />
               <NavItem icon={<Globe className="w-4 h-4" />} label="Job Board" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />
               <NavItem icon={<FileText className="w-4 h-4" />} label="Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} />
+              <NavItem icon={<Bookmark className="w-4 h-4" />} label="Watchlist" active={activeTab === "watchlist"} onClick={() => setActiveTab("watchlist")} />
             </>
           ) : (
             <>
@@ -434,7 +473,19 @@ export default function Dashboard() {
                     className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col h-full cursor-pointer hover:scale-[1.02]"
                   >
                     <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-xl shadow-lg group-hover:bg-[#cb4b16] transition-colors">{job.recruiterProfile?.companyName?.[0]}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-xl shadow-lg group-hover:bg-[#cb4b16] transition-colors">{job.recruiterProfile?.companyName?.[0]}</div>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); toggleBookmark(job.id); }}
+                          className={`p-2 rounded-xl transition-all hover:scale-110 ${
+                            bookmarkedJobIds.has(job.id) 
+                              ? 'text-[#cb4b16] bg-[#cb4b16]/10' 
+                              : 'text-[#7a6040]/40 hover:text-[#cb4b16]'
+                          }`}
+                        >
+                          {bookmarkedJobIds.has(job.id) ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
+                        </button>
+                      </div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 text-[8px] font-black uppercase tracking-widest border border-orange-500/20">
                           <Sparkles className="w-2 h-2" /> {85 + (job.title.length % 15)}% Match
@@ -478,10 +529,78 @@ export default function Dashboard() {
                         }`}>
                           {app.status}
                         </span>
+                        {app.status === "REJECTED" && (
+                          <button 
+                            onClick={() => setViewingSkillGap(app)}
+                            className="block w-full mt-2 text-[8px] font-black uppercase tracking-widest text-[#cb4b16] hover:underline"
+                          >
+                            Analyze Rejection
+                          </button>
+                        )}
                         <p className="text-[10px] text-[#7a6040] mt-2 font-bold">{new Date(app.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                   ))
+                )}
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "watchlist" && (
+              <motion.div key="watchlist" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                {/* Watchlist Header */}
+                <div className="bg-[#2d2013] rounded-[2.5rem] p-10 text-[#fdf6e3] shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-10 opacity-10"><Bookmark className="w-32 h-32 rotate-12" /></div>
+                  <div className="relative z-10">
+                    <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Saved Roles</p>
+                    <h3 className="text-3xl font-black tracking-tighter mb-2">Your Career Watchlist</h3>
+                    <p className="text-xs text-[#eee8d5]/60 font-medium">Roles you've bookmarked for future applications. {bookmarks.length} saved.</p>
+                  </div>
+                </div>
+
+                {bookmarks.length === 0 ? (
+                  <div className="text-center py-20 bg-white/40 border border-dashed border-[#cfc3a0] rounded-[2.5rem]">
+                    <Bookmark className="w-12 h-12 mx-auto text-[#cfc3a0] mb-4" />
+                    <p className="font-bold text-[#7a6040]">No saved roles yet.</p>
+                    <p className="text-xs text-[#7a6040]/60 mt-1">Browse the Job Board and tap the bookmark icon to save roles here.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {bookmarks.map((bm: any) => (
+                      <div key={bm.id} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col">
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="w-12 h-12 rounded-2xl bg-[#2d2013] text-white flex items-center justify-center font-black text-xl shadow-lg group-hover:bg-[#cb4b16] transition-colors">{bm.job?.recruiterProfile?.companyName?.[0] || "S"}</div>
+                          <button 
+                            onClick={() => toggleBookmark(bm.jobId)}
+                            className="p-2 text-[#cb4b16] bg-[#cb4b16]/10 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <h4 className="text-lg font-black tracking-tight text-[#2d2013] mb-1">{bm.job?.title}</h4>
+                        <p className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest mb-2">{bm.job?.recruiterProfile?.companyName}</p>
+                        <div className="flex items-center gap-3 text-[10px] font-bold text-[#7a6040] uppercase tracking-widest mb-6">
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {bm.job?.location}</span>
+                          <span className="px-2 py-0.5 bg-[#cb4b16]/10 text-[#cb4b16] rounded-full">{bm.job?.jobType}</span>
+                        </div>
+                        <p className="text-xs text-[#7a6040] line-clamp-2 leading-relaxed mb-6">{bm.job?.description}</p>
+                        <div className="mt-auto flex gap-3">
+                          <button 
+                            onClick={() => setViewingJob(bm.job)}
+                            className="flex-1 py-4 rounded-2xl bg-[#2d2013] text-[#fdf6e3] font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] transition-all shadow-md text-center"
+                          >
+                            View Details
+                          </button>
+                          <button 
+                            onClick={() => handleApply(bm.jobId)}
+                            className="flex-1 py-4 rounded-2xl bg-[#cb4b16] text-white font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all shadow-md text-center"
+                          >
+                            Apply Now
+                          </button>
+                        </div>
+                        <p className="text-[8px] text-[#7a6040]/50 font-bold mt-3 text-center">Saved {new Date(bm.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </motion.div>
             )}
@@ -749,7 +868,10 @@ export default function Dashboard() {
                       </div>
                       <div className="flex gap-2">
                         {app.status === "PENDING" && (
-                          <button onClick={() => updateApplicationStatus(app.id, "SHORTLISTED")} className="p-3 bg-green-500 text-white rounded-xl shadow-lg hover:scale-110 transition-all"><Plus className="w-4 h-4" /></button>
+                          <>
+                            <button onClick={() => updateApplicationStatus(app.id, "SHORTLISTED")} className="p-3 bg-green-500 text-white rounded-xl shadow-lg hover:scale-110 transition-all"><Plus className="w-4 h-4" /></button>
+                            <button onClick={() => { setSelectedAppForRejection(app); setIsRejectionModalOpen(true); }} className="p-3 bg-red-500 text-white rounded-xl shadow-lg hover:scale-110 transition-all"><X className="w-4 h-4" /></button>
+                          </>
                         )}
                         <button onClick={() => setViewingProfile(app)} className="p-3 bg-[#2d2013] text-white rounded-xl shadow-lg hover:bg-[#cb4b16] transition-all"><UserIcon className="w-4 h-4" /></button>
                       </div>
@@ -915,6 +1037,152 @@ export default function Dashboard() {
                     <button onClick={() => { updateApplicationStatus(viewingProfile.id, "REJECTED"); setViewingProfile(null); }} className="w-full py-5 rounded-2xl bg-white text-[#2d2013] border border-[#cfc3a0] font-black uppercase tracking-widest text-xs hover:bg-[#2d2013] hover:text-white transition-all">Pass</button>
                   </div>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+        {isRejectionModalOpen && (
+          <div className="fixed inset-0 bg-[#2d2013]/60 backdrop-blur-md z-[300] flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-2xl rounded-[3rem] p-10 shadow-2xl relative">
+              <button onClick={() => setIsRejectionModalOpen(false)} className="absolute top-8 right-8 p-2 text-[#7a6040] hover:text-[#cb4b16]"><X className="w-6 h-6" /></button>
+              <div className="mb-8">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Rejection Intelligence</p>
+                <h3 className="text-3xl font-black tracking-tighter">Bridge the Gap</h3>
+                <p className="text-xs text-[#7a6040] font-bold mt-2">Provide constructive feedback to help {selectedAppForRejection?.user?.name} grow.</p>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Quick Presets</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { skill: "React", course: "https://react.dev" },
+                      { skill: "Next.js", course: "https://nextjs.org/learn" },
+                      { skill: "TypeScript", course: "https://www.typescriptlang.org/docs/" },
+                      { skill: "Tailwind", course: "https://tailwindcss.com/docs" },
+                      { skill: "Prisma", course: "https://www.prisma.io/docs" },
+                      { skill: "PostgreSQL", course: "https://www.postgresql.org/docs/" }
+                    ].map((preset) => (
+                      <button 
+                        key={preset.skill}
+                        onClick={() => {
+                          const currentSkills = rejectionForm.skills ? rejectionForm.skills.split(',').map(s => s.trim()) : [];
+                          if (!currentSkills.includes(preset.skill)) {
+                            setRejectionForm({
+                              ...rejectionForm,
+                              skills: rejectionForm.skills ? `${rejectionForm.skills}, ${preset.skill}` : preset.skill,
+                              courses: rejectionForm.courses ? `${rejectionForm.courses}, ${preset.course}` : preset.course
+                            });
+                          }
+                        }}
+                        className="px-3 py-1 bg-[#2d2013]/5 text-[#2d2013] text-[8px] font-black uppercase tracking-widest rounded-full hover:bg-[#cb4b16] hover:text-white transition-all"
+                      >
+                        + {preset.skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Feedback Note</label>
+                  <textarea 
+                    value={rejectionForm.feedback} 
+                    onChange={(e) => setRejectionForm({...rejectionForm, feedback: e.target.value})}
+                    placeholder="Why was this application not a fit?"
+                    className="w-full p-4 rounded-2xl bg-white border border-[#cfc3a0] text-sm font-bold resize-none"
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Missing Skills (Comma separated)</label>
+                  <input 
+                    value={rejectionForm.skills} 
+                    onChange={(e) => setRejectionForm({...rejectionForm, skills: e.target.value})}
+                    placeholder="React, TypeScript, SQL..."
+                    className="w-full p-4 rounded-2xl bg-white border border-[#cfc3a0] text-sm font-bold"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040]">Suggested Learning (Course URL)</label>
+                  <input 
+                    value={rejectionForm.courses} 
+                    onChange={(e) => setRejectionForm({...rejectionForm, courses: e.target.value})}
+                    placeholder="https://..."
+                    className="w-full p-4 rounded-2xl bg-white border border-[#cfc3a0] text-sm font-bold"
+                  />
+                </div>
+                <button 
+                  onClick={() => {
+                    const courseList = rejectionForm.courses.split(',').map(url => ({
+                      title: "Learning Resource",
+                      url: url.trim()
+                    })).filter(c => c.url);
+                    
+                    updateApplicationStatus(selectedAppForRejection.id, "REJECTED", {
+                      rejectionFeedback: rejectionForm.feedback,
+                      skillGaps: rejectionForm.skills,
+                      suggestedCourses: JSON.stringify(courseList)
+                    });
+                  }}
+                  className="w-full py-5 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:bg-red-600 transition-all"
+                >
+                  Confirm Rejection & Send Intelligence
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {viewingSkillGap && (
+          <div className="fixed inset-0 bg-[#2d2013]/60 backdrop-blur-md z-[300] flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-3xl rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-10 opacity-5"><Target className="w-48 h-48" /></div>
+              <button onClick={() => setViewingSkillGap(null)} className="absolute top-8 right-8 p-2 text-[#7a6040] hover:text-[#cb4b16] z-10"><X className="w-6 h-6" /></button>
+              
+              <div className="relative z-10">
+                <div className="mb-10">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Skill-Gap Intelligence Report</p>
+                  <h3 className="text-4xl font-black tracking-tighter leading-tight">Your Path to <span className="text-[#cb4b16]">Success.</span></h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-8">
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4">Recruiter's Perspective</h4>
+                      <p className="text-sm font-bold text-[#2d2013] leading-relaxed italic bg-white/40 p-6 rounded-2xl border border-[#cfc3a0]">"{viewingSkillGap.rejectionFeedback || "No specific feedback provided, but we suggest focusing on the skills below."}"</p>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4">Identified Skill Gaps</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {viewingSkillGap.skillGaps?.split(',').map((skill: string, i: number) => (
+                          <span key={i} className="px-4 py-2 bg-red-500/10 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-500/20">{skill.trim()}</span>
+                        )) || <span className="text-xs font-bold opacity-50">General technical refinement suggested.</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-4">Recommended Learning</h4>
+                      <div className="space-y-3">
+                        {JSON.parse(viewingSkillGap.suggestedCourses || "[]").map((course: any, i: number) => (
+                          <a key={i} href={course.url} target="_blank" className="flex items-center justify-between p-4 bg-[#2d2013] text-white rounded-2xl group hover:bg-[#cb4b16] transition-all">
+                            <span className="text-[10px] font-black uppercase tracking-widest">{course.title}</span>
+                            <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-6 bg-orange-500/10 border border-orange-500/20 rounded-[2rem]">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Clock className="w-4 h-4 text-orange-600" />
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-orange-600">Re-apply Window</h4>
+                      </div>
+                      <p className="text-[10px] font-bold text-[#7a6040]">You can re-apply for roles at {viewingSkillGap.job?.recruiterProfile?.companyName} after <span className="text-[#2d2013]">{new Date(viewingSkillGap.reapplyDate || Date.now()).toLocaleDateString()}</span>. Focus on your growth until then!</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>

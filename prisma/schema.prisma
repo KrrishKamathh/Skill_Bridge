@@ -32,6 +32,7 @@ model User {
   studentProfile   StudentProfile?
   recruiterProfile RecruiterProfile?
   applications     Application[]
+  bookmarks        Bookmark[]
 
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -91,15 +92,35 @@ model Job {
   isActive           Boolean          @default(true)
   
   applications       Application[]
+  bookmarks          Bookmark[]
   createdAt          DateTime         @default(now())
 }
 
-model Application {
+model Bookmark {
   id        String   @id @default(cuid())
   userId    String
   jobId     String
-  status    String   @default("PENDING") // PENDING, SHORTLISTED, REJECTED
   createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+}
+
+model Application {
+  id                String    @id @default(cuid())
+  userId            String
+  jobId             String
+  status            String    @default("PENDING") // PENDING, SHORTLISTED, REJECTED
+  
+  // Skill-Gap Intelligence
+  rejectionFeedback String?
+  skillGaps         String?   // Comma-separated skills
+  suggestedCourses  String?   // JSON string
+  reapplyDate       DateTime?
+  
+  createdAt         DateTime  @default(now())
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
