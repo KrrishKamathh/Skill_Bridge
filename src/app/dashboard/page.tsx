@@ -1082,18 +1082,6 @@ export default function Dashboard() {
                       ))}
                     </ul>
                   </div>
-
-                  {/* Secondary Metrics */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0] shadow-sm text-center">
-                      <p className="text-[8px] font-black uppercase tracking-widest text-[#7a6040] mb-1">Clarity</p>
-                      <p className="text-lg font-black text-[#2d2013]">{(viewingProfile.user?.studentProfile?.bio?.length || 40) % 20 + 75}%</p>
-                    </div>
-                    <div className="p-6 bg-white rounded-3xl border border-[#cfc3a0] shadow-sm text-center">
-                      <p className="text-[8px] font-black uppercase tracking-widest text-[#7a6040] mb-1">Impact</p>
-                      <p className="text-lg font-black text-[#2d2013]">{(viewingProfile.user?.studentProfile?.projects?.length || 0) * 15 + 40}%</p>
-                    </div>
-                  </div>
                 </div>
 
                 {userRole === "RECRUITER" && viewingProfile?.status === "PENDING" && (
