@@ -1015,8 +1015,9 @@ export default function Dashboard() {
                 )}
               </div>
             </motion.div>
-          </div>
-        )}
+          </motion.div>
+        </div>
+      )}
 
         {viewingJob && (
           <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
