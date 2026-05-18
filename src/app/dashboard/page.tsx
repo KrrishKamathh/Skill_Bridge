@@ -50,7 +50,7 @@ export default function Dashboard() {
   // Form States
   const [personalData, setPersonalData] = useState({ dob: "", location: "", bio: "", username: "", githubUrl: "", linkedinUrl: "" });
   const [qualData, setQualData] = useState({ college: "", school: "", cgpa: "", resumeUrl: "" });
-  const [newProject, setNewProject] = useState({ id: "", title: "", description: "", imageUrl: "" });
+  const [newProject, setNewProject] = useState({ id: "", title: "", description: "", evidenceLink: "" });
   const [recruiterData, setRecruiterData] = useState({ companyName: "", designation: "", publicBio: "" });
   const [newJob, setNewJob] = useState({ title: "", type: "Full-time", location: "", salary: "", requirements: "", description: "" });
 
@@ -577,7 +577,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 text-[8px] font-black uppercase tracking-widest border border-orange-500/20">
-                          <Sparkles className="w-2 h-2" /> {85 + (job.title.length % 15)}% Match
+                          <Sparkles className="w-2 h-2" /> {job.aiMatchScore !== undefined ? job.aiMatchScore : (85 + (job.title.length % 15))}% Match
                         </div>
                         <span className="px-3 py-1 rounded-full bg-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{job.type || job.jobType}</span>
                         <span className="text-[8px] font-bold text-[#7a6040] uppercase tracking-widest">{job.location}</span>
@@ -821,21 +821,21 @@ export default function Dashboard() {
                       </label>
                     </div>
                   </div>
-
+ 
                   <div className="space-y-8">
                     <div className="grid grid-cols-3 gap-6">
+                      <div className="col-span-2 space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">College / University</label>
+                        <input value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} placeholder="e.g. MVJ College of Engineering" className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
+                      </div>
                       <div className="col-span-1 space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">CGPA</label>
                         <input type="number" step="0.01" value={qualData.cgpa} onChange={(e) => setQualData({...qualData, cgpa: e.target.value})} placeholder="e.g. 9.2" className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
                       </div>
-                      <div className="col-span-1 space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">College / University</label>
-                        <input value={qualData.college} onChange={(e) => setQualData({...qualData, college: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
-                      </div>
-                      <div className="col-span-1 space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Schooling</label>
-                        <input value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
-                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Schooling (10th/12th Grade or High School)</label>
+                      <input value={qualData.school} onChange={(e) => setQualData({...qualData, school: e.target.value})} placeholder="e.g. St. Xavier High School, CBSE Board" className="w-full p-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:ring-2 focus:ring-[#cb4b16]/20 transition-all text-sm font-bold" />
                     </div>
                     {qualData.resumeUrl && (
                       <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3">
@@ -846,10 +846,42 @@ export default function Dashboard() {
                     <button onClick={() => handleUpdate(qualData)} className="w-full py-5 rounded-2xl bg-[#cb4b16] text-[#fdf6e3] font-black uppercase tracking-widest text-xs hover:scale-[1.01] transition-all shadow-xl">Save Academic Foundation</button>
                   </div>
                 </div>
-
+ 
                 {/* Achievements Section */}
                 <div className="bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] p-10 shadow-sm">
-                  <h3 className="text-xl font-black tracking-tight mb-8 uppercase tracking-widest text-[14px]">Add New Achievement</h3>
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h3 className="text-xl font-black tracking-tight uppercase tracking-widest text-[14px]">Add New Achievement</h3>
+                      <p className="text-[10px] text-[#7a6040] font-bold uppercase opacity-60">Add hackathons, certifications, or milestones with verified proof.</p>
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="file" 
+                        id="cert-upload" 
+                        className="hidden" 
+                        accept="image/*,.pdf" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setNewProject({ ...newProject, evidenceLink: reader.result as string });
+                            reader.readAsDataURL(file);
+                          }
+                        }} 
+                      />
+                      <label htmlFor="cert-upload" className="px-5 py-2.5 bg-[#2d2013] text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-md hover:bg-[#cb4b16] transition-all cursor-pointer flex items-center gap-2">
+                        <Upload className="w-3.5 h-3.5" /> {newProject.evidenceLink ? "Update Certificate Proof" : "Upload Certificate Proof"}
+                      </label>
+                    </div>
+                  </div>
+
+                  {newProject.evidenceLink && (
+                    <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-green-600" />
+                      <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Certificate / Proof Attached ✓</span>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] px-1">Achievement Title</label>
@@ -867,7 +899,7 @@ export default function Dashboard() {
                       try {
                         const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProject) });
                         if (res.ok) {
-                          setNewProject({ id: "", title: "", description: "" });
+                          setNewProject({ id: "", title: "", description: "", evidenceLink: "" });
                           fetchProfile();
                           alert("Achievement Added!");
                         }
@@ -878,26 +910,38 @@ export default function Dashboard() {
                     Lock Achievement to Profile
                   </button>
                 </div>
-
+ 
                 {/* Achievements Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {userData?.studentProfile?.projects?.map((p: any) => (
-                    <div key={p.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl shadow-sm group relative">
-                      <button 
-                        onClick={async () => {
-                          if (!confirm("Remove this achievement?")) return;
-                          try {
-                            const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
-                            if (res.ok) fetchProfile();
-                          } catch (e) { console.error(e); }
-                        }}
-                        className="absolute top-4 right-4 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      <div className="w-8 h-8 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-4"><Trophy className="w-4 h-4" /></div>
-                      <h4 className="text-sm font-black tracking-tight mb-1">{p.title}</h4>
-                      <p className="text-[10px] text-[#7a6040] leading-relaxed line-clamp-2">{p.description}</p>
+                    <div key={p.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl shadow-sm group relative flex flex-col justify-between h-full">
+                      <div>
+                        <button 
+                          onClick={async () => {
+                            if (!confirm("Remove this achievement?")) return;
+                            try {
+                              const res = await fetch(`/api/projects/${p.id}`, { method: "DELETE" });
+                              if (res.ok) fetchProfile();
+                            } catch (e) { console.error(e); }
+                          }}
+                          className="absolute top-4 right-4 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <div className="w-8 h-8 rounded-xl bg-[#2d2013] text-white flex items-center justify-center mb-4"><Trophy className="w-4 h-4" /></div>
+                        <h4 className="text-sm font-black tracking-tight mb-1">{p.title}</h4>
+                        <p className="text-[10px] text-[#7a6040] leading-relaxed line-clamp-3 mb-4">{p.description}</p>
+                      </div>
+                      {p.evidenceLink && (
+                        <a 
+                          href={p.evidenceLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="w-full py-2 bg-green-500/10 border border-green-500/20 hover:bg-green-500 hover:text-white transition-all text-green-700 rounded-xl text-center text-[8px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 mt-auto shadow-sm"
+                        >
+                          <FileText className="w-3 h-3" /> View Proof Certificate
+                        </a>
+                      )}
                     </div>
                   ))}
                 </div>

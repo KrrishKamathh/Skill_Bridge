@@ -40,8 +40,9 @@ export async function GET() {
     const studentInfo = `
       Bio: ${student.bio || 'None'}
       Achievements: ${student.achievements || 'None'}
-      Projects: ${student.projects.map(p => p.title + ' - ' + p.description).join(', ') || 'None'}
-      College: ${student.college || 'None'}
+      Schooling/Background: ${student.school || 'None'}
+      College/Degree: ${student.college || 'None'}
+      Projects/Achievements: ${student.projects.map(p => p.title + ' - ' + p.description + (p.evidenceLink ? ' (Verified Certificate Proof attached)' : '')).join(', ') || 'None'}
     `;
 
     const jobListings = jobs.map(job => 
@@ -49,9 +50,14 @@ export async function GET() {
     ).join('\n');
 
     const prompt = `
-      You are an expert AI recruitment engine. Your task is to semantically match a student's profile against a list of job postings. 
-      You must ONLY return the IDs of the jobs that are a good semantic match for the student's skills, background, and projects. 
-      For example, do NOT match a mechanical engineering job to a data analyst student. Be reasonably generous but filter out obvious mismatches.
+      You are an expert AI talent acquisition engine. Your job is to semantically compare a student's academic background, bio, projects, and achievements against a list of active job postings.
+      For each job, evaluate how well the student's credentials fit the job title, required tech stack/tools, and job description.
+      
+      CRITICAL MATCHING RULES:
+      1. Obvious career path mismatches (e.g., matching a Graphic Designer or UI/UX role to a student who has a strictly Commerce/Finance background with zero design projects, or matching a Software Engineer role to a Mechanical/Civil background with no coding projects) MUST receive a match score under 30%.
+      2. If a student's profile is empty, thin, or generic, do NOT give them a high score. They must receive a low match score (under 40%).
+      3. A strong match (e.g., a student with React projects matching a Frontend React developer role) should receive a high score (80% to 98%).
+      4. A medium match (some transferable skills or projects) should receive 40% to 79%.
       
       Student Profile:
       ${studentInfo}
@@ -59,7 +65,13 @@ export async function GET() {
       Job Postings:
       ${jobListings}
       
-      Return ONLY a JSON array of strings containing the matched job IDs. Do NOT include markdown blocks like \`\`\`json. Just the array like ["id1", "id2"]. If no jobs match, return [].
+      Return ONLY a JSON object mapping each job ID to an integer percentage score (0 to 100). Do NOT write any markdown blocks like \`\`\`json. Just return a raw JSON object. If no jobs match or exist, return {}.
+      
+      Example return format:
+      {
+        "job_id_1": 87,
+        "job_id_2": 15
+      }
     `;
 
     try {
@@ -69,23 +81,30 @@ export async function GET() {
         contents: prompt,
       });
 
-      const responseText = response.text?.trim() || "[]";
-      // Clean up markdown just in case the AI includes it despite instructions
+      const responseText = response.text?.trim() || "{}";
       const cleanedText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
       
-      const matchedJobIds: string[] = JSON.parse(cleanedText);
+      const matchedJobScores: Record<string, number> = JSON.parse(cleanedText);
 
-      // Filter jobs based on AI response
-      const matchedJobs = jobs.filter(job => matchedJobIds.includes(job.id));
-      
-      // If AI matched nothing but there are jobs, it might be too strict or failed. 
-      // Depending on requirements, we can return empty or fallback to all. Let's return empty.
+      // Map the jobs and attach their real AI match scores
+      const jobsWithScores = jobs.map(job => {
+        const score = matchedJobScores[job.id] !== undefined ? matchedJobScores[job.id] : 50;
+        return { ...job, aiMatchScore: score };
+      });
+
+      // Filter out jobs with match scores < 40 so the student only sees relevant jobs
+      const matchedJobs = jobsWithScores.filter(job => job.aiMatchScore >= 40);
+
+      // Sort by match score descending so their best matches are always at the top!
+      matchedJobs.sort((a, b) => b.aiMatchScore - a.aiMatchScore);
+
       return NextResponse.json(matchedJobs);
       
     } catch (aiError) {
       console.error("AI Matching Error:", aiError);
-      // Fallback to all jobs if AI fails
-      return NextResponse.json(jobs);
+      // Fallback: Return all jobs with a default mock score if AI fails
+      const fallbackJobs = jobs.map(job => ({ ...job, aiMatchScore: 85 }));
+      return NextResponse.json(fallbackJobs);
     }
 
   } catch (error) {
