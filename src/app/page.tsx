@@ -36,10 +36,10 @@ export default function Home() {
           </MagneticWrapper>
           
           <div className="hidden lg:flex gap-10 text-[10px] font-black uppercase tracking-[0.25em] text-[#7a6040]">
-            <span className="hover:text-[#cb4b16] transition-colors cursor-pointer">Curriculum</span>
-            <span className="hover:text-[#cb4b16] transition-colors cursor-pointer">Velocity</span>
-            <span className="hover:text-[#cb4b16] transition-colors cursor-pointer">Network</span>
-            <span className="hover:text-[#cb4b16] transition-colors cursor-pointer">Pricing</span>
+            <span onClick={() => document.getElementById('curriculum')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-[#cb4b16] transition-colors cursor-pointer">Curriculum</span>
+            <span onClick={() => document.getElementById('velocity')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-[#cb4b16] transition-colors cursor-pointer">Velocity</span>
+            <span onClick={() => document.getElementById('network')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-[#cb4b16] transition-colors cursor-pointer">Network</span>
+            <span onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-[#cb4b16] transition-colors cursor-pointer">Pricing</span>
           </div>
           
           <div className="flex items-center gap-6">
@@ -88,7 +88,7 @@ export default function Home() {
         </motion.section>
 
         {/* Bento Grid */}
-        <section className="px-6 max-w-7xl mx-auto relative z-10 pointer-events-auto">
+        <section id="curriculum" className="px-6 max-w-7xl mx-auto relative z-10 pointer-events-auto">
           <div className="mb-16 text-center">
             <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-[#2d2013] mb-4">Vetted Talent. Verified Skills.</h2>
             <p className="text-[#7a6040] font-bold text-sm uppercase tracking-widest">Bridging the distance between education and employment.</p>
@@ -129,6 +129,7 @@ export default function Home() {
 
         {/* 3D Dashboard Showcase */}
         <motion.section 
+          id="velocity"
           initial={{ opacity: 0, scale: 0.98, y: 60 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -148,7 +149,7 @@ export default function Home() {
         </motion.section>
 
         {/* Footer */}
-        <footer className="bg-[#eee8d5] border-t border-[#cfc3a0] pt-24 pb-12 px-6 relative z-10 pointer-events-auto">
+        <footer id="network" className="bg-[#eee8d5] border-t border-[#cfc3a0] pt-24 pb-12 px-6 relative z-10 pointer-events-auto">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
             <div className="md:col-span-1">
               <div className="font-black text-2xl tracking-tighter text-[#2d2013] mb-6 flex items-center gap-2">
@@ -185,7 +186,7 @@ export default function Home() {
               </ul>
             </div>
             
-            <div className="md:col-span-1">
+            <div id="pricing" className="md:col-span-1">
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2d2013] mb-8">Join the Pulse</h4>
               <div className="flex bg-[#fdf6e3] rounded-xl border border-[#cfc3a0] p-1 shadow-sm">
                 <input type="email" placeholder="Email Address" className="bg-transparent border-none focus:ring-0 text-xs flex-1 px-4 py-2 font-bold" />
