@@ -1083,14 +1083,27 @@ export default function Dashboard() {
                       </div>
                       <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Tech Stack</p>
-                        <p className="font-bold text-[#cb4b16] text-sm md:text-base truncate">{viewingJob.requirements || "Not Specified"}</p>
+                        <p className="font-bold text-[#cb4b16] text-sm md:text-base">{viewingJob.requirements ? `${viewingJob.requirements.split(',').length} Technologies` : "Not Specified"}</p>
                       </div>
                     </div>
                     
                     <section>
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> Mission & Description</h4>
-                      <p className="text-xl text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap opacity-90">{viewingJob.description}</p>
+                      <p className="text-xl text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap opacity-90 mb-10">{viewingJob.description}</p>
                     </section>
+                    
+                    {viewingJob.requirements && (
+                      <section>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2">🛠️ Technologies & Skills Required</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {viewingJob.requirements.split(',').map((req: string, i: number) => (
+                            <span key={i} className="px-4 py-2 rounded-2xl bg-[#cb4b16]/10 border border-[#cb4b16]/20 text-[#cb4b16] text-xs font-black uppercase tracking-widest shadow-sm">
+                              {req.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </section>
+                    )}
                   </div>
 
                   <div className="space-y-6">
