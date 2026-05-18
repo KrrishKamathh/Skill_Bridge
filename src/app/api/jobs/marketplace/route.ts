@@ -4,6 +4,29 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { GoogleGenAI } from "@google/genai";
 
+function calculateHybridMatchScore(student: any, job: any): number {
+  const studentText = `${student.bio || ''} ${student.school || ''} ${student.college || ''} ${student.achievements || ''} ${student.projects?.map((p: any) => p.title + ' ' + p.description).join(' ') || ''}`.toLowerCase();
+  const jobText = `${job.title} ${job.requirements || ''} ${job.description || ''}`.toLowerCase();
+
+  const isFinanceStudent = studentText.includes('finance') || studentText.includes('commerce') || studentText.includes('accounting') || studentText.includes('bcom') || studentText.includes('cfa');
+  const isDesignJob = jobText.includes('design') || jobText.includes('figma') || jobText.includes('photoshop') || jobText.includes('illustrator') || jobText.includes('graphic') || jobText.includes('ui/ux');
+
+  // Hard career path mismatch check: Finance student with zero design projects/skills
+  if (isFinanceStudent && isDesignJob) {
+    const hasDesignSkill = studentText.includes('design') || studentText.includes('figma') || studentText.includes('photoshop') || studentText.includes('illustrator') || studentText.includes('ui/ux');
+    if (!hasDesignSkill) return 15; // Obvious mismatch
+  }
+
+  // Tech job mismatch check: Finance student with zero coding skills
+  const isTechJob = jobText.includes('developer') || jobText.includes('engineer') || jobText.includes('software') || jobText.includes('react') || jobText.includes('coding');
+  if (isFinanceStudent && isTechJob) {
+    const hasTechSkill = studentText.includes('coding') || studentText.includes('developer') || studentText.includes('react') || studentText.includes('python') || studentText.includes('javascript') || studentText.includes('btech');
+    if (!hasTechSkill) return 20; // Obvious mismatch
+  }
+
+  return 85; // Default fallback score if everything matches well
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -31,9 +54,21 @@ export async function GET() {
       include: { projects: true }
     });
 
-    if (!student || !process.env.GEMINI_API_KEY) {
-      // Fallback: If no student profile or no API key, return all jobs
+    if (!student) {
       return NextResponse.json(jobs);
+    }
+
+    // 1. Calculate deterministic matching first (safeguard)
+    const jobsWithScores = jobs.map(job => {
+      const score = calculateHybridMatchScore(student, job);
+      return { ...job, aiMatchScore: score };
+    });
+
+    // If Gemini key is not present, use the deterministic hybrid matching directly
+    if (!process.env.GEMINI_API_KEY) {
+      const matchedJobs = jobsWithScores.filter(job => job.aiMatchScore >= 40);
+      matchedJobs.sort((a, b) => b.aiMatchScore - a.aiMatchScore);
+      return NextResponse.json(matchedJobs);
     }
 
     // Prepare prompt for AI Semantic Matching
@@ -86,25 +121,33 @@ export async function GET() {
       
       const matchedJobScores: Record<string, number> = JSON.parse(cleanedText);
 
-      // Map the jobs and attach their real AI match scores
-      const jobsWithScores = jobs.map(job => {
-        const score = matchedJobScores[job.id] !== undefined ? matchedJobScores[job.id] : 50;
+      // Merge Gemini AI scores with deterministic hybrid safeguards
+      const mergedJobs = jobs.map(job => {
+        let score = matchedJobScores[job.id] !== undefined ? matchedJobScores[job.id] : 50;
+        
+        // Safeguard check: If hybrid algorithm says it's a mismatch (score <= 30), override to mismatch
+        const safeguardScore = calculateHybridMatchScore(student, job);
+        if (safeguardScore <= 30) {
+          score = safeguardScore;
+        }
+
         return { ...job, aiMatchScore: score };
       });
 
       // Filter out jobs with match scores < 40 so the student only sees relevant jobs
-      const matchedJobs = jobsWithScores.filter(job => job.aiMatchScore >= 40);
+      const matchedJobs = mergedJobs.filter(job => job.aiMatchScore >= 40);
 
-      // Sort by match score descending so their best matches are always at the top!
+      // Sort by match score descending
       matchedJobs.sort((a, b) => b.aiMatchScore - a.aiMatchScore);
 
       return NextResponse.json(matchedJobs);
       
     } catch (aiError) {
       console.error("AI Matching Error:", aiError);
-      // Fallback: Return all jobs with a default mock score if AI fails
-      const fallbackJobs = jobs.map(job => ({ ...job, aiMatchScore: 85 }));
-      return NextResponse.json(fallbackJobs);
+      // Fallback: If Gemini API fails/times out, use the safe hybrid calculations
+      const matchedJobs = jobsWithScores.filter(job => job.aiMatchScore >= 40);
+      matchedJobs.sort((a, b) => b.aiMatchScore - a.aiMatchScore);
+      return NextResponse.json(matchedJobs);
     }
 
   } catch (error) {
