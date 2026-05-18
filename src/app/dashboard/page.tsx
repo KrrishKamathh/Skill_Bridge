@@ -209,30 +209,68 @@ export default function Dashboard() {
   // Filter States
   const [filters, setFilters] = useState({ minCgpa: "", collegeKeyword: "", skillKeywords: "" });
 
+  const calculateJobMatchScore = (student: any, job: any): number => {
+    if (!student || !job) return 50;
+
+    const studentText = `${student.bio || ""} ${student.school || ""} ${student.college || ""} ${student.achievements || ""} ${student.projects?.map((p: any) => p.title + " " + p.description).join(" ") || ""}`.toLowerCase();
+    const jobText = `${job.title} ${job.requirements || ""} ${job.description || ""}`.toLowerCase();
+
+    const isFinanceStudent = studentText.includes("finance") || studentText.includes("commerce") || studentText.includes("accounting") || studentText.includes("bcom") || studentText.includes("cfa");
+    const isDesignJob = jobText.includes("design") || jobText.includes("figma") || jobText.includes("photoshop") || jobText.includes("illustrator") || jobText.includes("graphic") || jobText.includes("ui/ux");
+
+    // Hard career path mismatch check: Finance student with zero design projects/skills
+    if (isFinanceStudent && isDesignJob) {
+      const hasDesignSkill = studentText.includes("design") || studentText.includes("figma") || studentText.includes("photoshop") || studentText.includes("illustrator") || studentText.includes("ui/ux");
+      if (!hasDesignSkill) return 18; // Obvious Mismatch: 18% Match
+    }
+
+    // Tech job mismatch check: Finance student with zero coding skills
+    const isTechJob = jobText.includes("developer") || jobText.includes("engineer") || jobText.includes("software") || jobText.includes("react") || jobText.includes("coding");
+    if (isFinanceStudent && isTechJob) {
+      const hasTechSkill = studentText.includes("coding") || studentText.includes("developer") || studentText.includes("react") || studentText.includes("python") || studentText.includes("javascript") || studentText.includes("btech");
+      if (!hasTechSkill) return 22; // Obvious Mismatch: 22% Match
+    }
+
+    // Calculate dynamic matching based on shared keywords
+    let baseScore = 65;
+
+    // Add points for matching tech requirements
+    if (job.requirements) {
+      const reqs = job.requirements.split(",").map((r: string) => r.trim().toLowerCase());
+      let matchCount = 0;
+      reqs.forEach((req: string) => {
+        if (studentText.includes(req)) matchCount++;
+      });
+      if (reqs.length > 0) {
+        baseScore += (matchCount / reqs.length) * 30;
+      }
+    }
+
+    // Cap the score between 10% and 98%
+    return Math.min(Math.max(Math.round(baseScore), 10), 98);
+  };
+
+  const calculateProfileStrength = (student: any): number => {
+    if (!student) return 0;
+    let score = 30; // base profile score
+    if (student.college) score += 15;
+    if (student.school) score += 10;
+    if (student.cgpa) score += 15;
+    if (student.resumeUrl) score += 15;
+    score += Math.min((student.projects?.length || 0) * 10, 30);
+    return Math.min(score, 100);
+  };
+
   const getFilteredApplicants = () => {
     if (!applicants) return [];
     
-    // 1. Calculate intelligence scores and assign ranks
+    // 1. Calculate matching score specifically for this job
     const scoredApplicants = applicants.map(app => {
-      const student = app.user.studentProfile;
-      let score = 0;
-      
-      if (student) {
-        // Projects Score (max 40)
-        score += Math.min((student.projects?.length || 0) * 10, 40);
-        // CGPA Score (max 30)
-        score += Math.min((student.cgpa || 0) * 3, 30);
-        // Evidence Score (Resume/Links) (max 20)
-        if (student.resumeUrl) score += 10;
-        if (student.githubUrl || student.linkedinUrl) score += 10;
-        // Bio Score (max 10)
-        score += Math.min((student.bio?.length || 0) / 20, 10);
-      }
-      
-      return { ...app, aiScore: score };
+      const matchScore = calculateJobMatchScore(app.user.studentProfile, selectedJob);
+      return { ...app, aiScore: matchScore };
     });
 
-    // 2. Sort by score descending
+    // 2. Sort by match score descending (best matches first!)
     const sorted = scoredApplicants.sort((a, b) => b.aiScore - a.aiScore);
 
     // 3. Filter the sorted list
@@ -1106,7 +1144,7 @@ export default function Dashboard() {
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-black text-[#2d2013] tracking-tight">{app.user.name}</p>
-                            <span className="text-[10px] font-black text-[#cb4b16] bg-[#cb4b16]/10 px-2 py-0.5 rounded-full">{Math.round(app.aiScore)} IQ</span>
+                            <span className="text-[10px] font-black text-[#cb4b16] bg-[#cb4b16]/10 px-2 py-0.5 rounded-full">{Math.round(app.aiScore)}% Match</span>
                           </div>
                           <div className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mt-1 inline-block ${
                             app.status === "SHORTLISTED" ? "bg-green-500/10 text-green-600" : 
@@ -1319,7 +1357,13 @@ export default function Dashboard() {
                          fill="transparent" 
                          strokeDasharray="503" 
                          initial={{ strokeDashoffset: 503 }}
-                         animate={{ strokeDashoffset: 503 - (503 * ((viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? 0.88 : 0.62)) }}
+                         animate={{ 
+                           strokeDashoffset: 503 - (503 * (
+                             selectedJob 
+                               ? calculateJobMatchScore(viewingProfile.user?.studentProfile, selectedJob) / 100 
+                               : calculateProfileStrength(viewingProfile.user?.studentProfile) / 100
+                           )) 
+                         }}
                          transition={{ duration: 2, ease: "circOut", delay: 0.5 }}
                          strokeLinecap="round"
                        />
@@ -1331,9 +1375,13 @@ export default function Dashboard() {
                          transition={{ delay: 1 }}
                          className="text-5xl font-black tracking-tighter text-[#2d2013]"
                        >
-                         {(viewingProfile.user?.studentProfile?.projects?.length || 0) > 1 ? "88" : "62"}%
+                         {selectedJob 
+                           ? calculateJobMatchScore(viewingProfile.user?.studentProfile, selectedJob) 
+                           : calculateProfileStrength(viewingProfile.user?.studentProfile)}%
                        </motion.span>
-                       <span className="text-[10px] font-black text-[#cb4b16] uppercase tracking-[0.2em] mt-1">Intelligence</span>
+                       <span className="text-[10px] font-black text-[#cb4b16] uppercase tracking-[0.2em] mt-1">
+                         {selectedJob ? "Job Match" : "Profile Strength"}
+                       </span>
                      </div>
                   </div>
                 </div>
