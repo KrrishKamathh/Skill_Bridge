@@ -352,10 +352,15 @@ export default function Dashboard() {
 
   if (!session) return null;
 
-  const NavItem = ({ icon, label, active, onClick }: any) => (
-    <button onClick={onClick} className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 font-bold ${active ? 'bg-[#cb4b16] text-[#fdf6e3] shadow-lg scale-[1.02]' : 'text-[#7a6040] hover:bg-[#cfc3a0]/30 hover:text-[#2d2013]'}`}>
+  const NavItem = ({ icon, label, active, onClick, badge }: any) => (
+    <button onClick={onClick} className={`relative flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 font-bold ${active ? 'bg-[#cb4b16] text-[#fdf6e3] shadow-lg scale-[1.02]' : 'text-[#7a6040] hover:bg-[#cfc3a0]/30 hover:text-[#2d2013]'}`}>
       <span className={active ? 'text-white' : 'text-[#cb4b16]'}>{icon}</span>
       <span className="text-xs uppercase tracking-widest">{label}</span>
+      {badge > 0 && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">
+          {badge}
+        </span>
+      )}
     </button>
   );
 
@@ -384,14 +389,14 @@ export default function Dashboard() {
               <NavItem icon={<UserIcon className="w-4 h-4" />} label="Identity" active={activeTab === "personal"} onClick={() => setActiveTab("personal")} />
               <NavItem icon={<Trophy className="w-4 h-4" />} label="Dossier" active={activeTab === "qualifications"} onClick={() => setActiveTab("qualifications")} />
               <NavItem icon={<Globe className="w-4 h-4" />} label="Job Board" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />
-              <NavItem icon={<FileText className="w-4 h-4" />} label="Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} />
-              <NavItem icon={<Bookmark className="w-4 h-4" />} label="Watchlist" active={activeTab === "watchlist"} onClick={() => setActiveTab("watchlist")} />
+              <NavItem icon={<FileText className="w-4 h-4" />} label="Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} badge={myApplications?.length || 0} />
+              <NavItem icon={<Bookmark className="w-4 h-4" />} label="Watchlist" active={activeTab === "watchlist"} onClick={() => setActiveTab("watchlist")} badge={bookmarks?.length || 0} />
             </>
           ) : (
             <>
               <NavItem icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
-              <NavItem icon={<Briefcase className="w-4 h-4" />} label="My Listings" active={activeTab === "listings"} onClick={() => setActiveTab("listings")} />
-              <NavItem icon={<Users className="w-4 h-4" />} label="Talent Pool" active={activeTab === "talent"} onClick={() => setActiveTab("talent")} />
+              <NavItem icon={<Briefcase className="w-4 h-4" />} label="My Listings" active={activeTab === "listings"} onClick={() => setActiveTab("listings")} badge={jobs?.length || 0} />
+              <NavItem icon={<Users className="w-4 h-4" />} label="Talent Pool" active={activeTab === "talent"} onClick={() => setActiveTab("talent")} badge={talentPool?.length || 0} />
               <NavItem icon={<Building className="w-4 h-4" />} label="Company" active={activeTab === "company"} onClick={() => setActiveTab("company")} />
             </>
           )}
@@ -579,9 +584,14 @@ export default function Dashboard() {
             {userRole === "STUDENT" && activeTab === "applications" && (
               <motion.div key="applications" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 {myApplications?.length === 0 ? (
-                  <div className="text-center py-20 bg-white/40 border border-[#cfc3a0] rounded-[2.5rem]">
-                    <p className="font-bold text-[#7a6040]">You haven't applied to any jobs yet.</p>
-                  </div>
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-24 bg-white/40 border border-dashed border-[#cfc3a0] rounded-[3rem] flex flex-col items-center justify-center group hover:bg-white/60 transition-all cursor-pointer shadow-sm" onClick={() => setActiveTab("marketplace")}>
+                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="w-24 h-24 bg-[#cb4b16]/10 rounded-full flex items-center justify-center mb-6 text-[#cb4b16] shadow-inner">
+                      <Briefcase className="w-10 h-10" />
+                    </motion.div>
+                    <h3 className="text-2xl font-black text-[#2d2013] mb-2 tracking-tight">No Active Applications</h3>
+                    <p className="text-sm font-bold text-[#7a6040] max-w-sm leading-relaxed mx-auto">Your intelligence profile is hungry for data. Browse the Job Board and apply to relevant roles.</p>
+                    <div className="mt-8 px-8 py-4 bg-[#2d2013] text-[#fdf6e3] rounded-2xl text-[10px] uppercase font-black tracking-widest shadow-xl group-hover:bg-[#cb4b16] transition-all">Explore Marketplace</div>
+                  </motion.div>
                 ) : (
                   myApplications?.map((app) => (
                     <div key={app.id} className="p-6 bg-white/60 border border-[#cfc3a0] rounded-3xl flex items-center justify-between group hover:shadow-lg transition-all">
@@ -629,11 +639,14 @@ export default function Dashboard() {
                 </div>
 
                 {bookmarks.length === 0 ? (
-                  <div className="text-center py-20 bg-white/40 border border-dashed border-[#cfc3a0] rounded-[2.5rem]">
-                    <Bookmark className="w-12 h-12 mx-auto text-[#cfc3a0] mb-4" />
-                    <p className="font-bold text-[#7a6040]">No saved roles yet.</p>
-                    <p className="text-xs text-[#7a6040]/60 mt-1">Browse the Job Board and tap the bookmark icon to save roles here.</p>
-                  </div>
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-24 bg-white/40 border border-dashed border-[#cfc3a0] rounded-[3rem] flex flex-col items-center justify-center group hover:bg-white/60 transition-all cursor-pointer shadow-sm" onClick={() => setActiveTab("marketplace")}>
+                    <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-24 h-24 bg-[#cb4b16]/10 rounded-full flex items-center justify-center mb-6 text-[#cb4b16] shadow-inner">
+                      <Bookmark className="w-10 h-10" />
+                    </motion.div>
+                    <h3 className="text-2xl font-black text-[#2d2013] mb-2 tracking-tight">Watchlist Empty</h3>
+                    <p className="text-sm font-bold text-[#7a6040] max-w-sm leading-relaxed mx-auto">Save roles that catch your eye while browsing. They'll be waiting for you here when you're ready.</p>
+                    <div className="mt-8 px-8 py-4 bg-[#2d2013] text-[#fdf6e3] rounded-2xl text-[10px] uppercase font-black tracking-widest shadow-xl group-hover:bg-[#cb4b16] transition-all">Find Roles</div>
+                  </motion.div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {bookmarks.map((bm: any) => (
