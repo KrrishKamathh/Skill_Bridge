@@ -64,12 +64,8 @@ export default function Home() {
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           className="text-center mb-40 max-w-5xl mx-auto px-6 relative z-10 pt-28"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#cfc3a0] bg-[#eee8d5]/40 text-[#cb4b16] text-[10px] font-black uppercase tracking-widest mb-8">
-            <Sparkles className="w-3 h-3" />
-            The Career Bridge for the Next Generation
-          </div>
           <h1 className="text-6xl md:text-[120px] font-black tracking-tighter mb-10 leading-[0.85] text-[#2d2013]">
-            Bridge <span className="text-[#cb4b16]">The</span>.<br />Gap.
+            Bridge <span className="text-[#cb4b16]">The</span><br />Gap.
           </h1>
           <p className="text-lg md:text-2xl text-[#7a6040] mb-14 max-w-3xl mx-auto font-medium leading-tight">
             The platform where students build "Proof of Skill" through real projects and recruiters find vetted talent. No more generic resumes — just data-backed potential.
