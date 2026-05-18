@@ -71,6 +71,8 @@ export default function Dashboard() {
   const [applicants, setApplicants] = useState<any[]>([]);
   const [talentPool, setTalentPool] = useState<any[]>([]);
   const [myApplications, setMyApplications] = useState<any[]>([]);
+  const [isModalTechExpanded, setIsModalTechExpanded] = useState(false);
+  const [expandedJobTech, setExpandedJobTech] = useState<Set<string>>(new Set());
   const [marketplaceJobs, setMarketplaceJobs] = useState<any[]>([]);
 
   // Rejection & Skill-Gap States
@@ -584,10 +586,32 @@ export default function Dashboard() {
                     )}
                     
                     {job.requirements && (
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {job.requirements.split(',').map((req: string, i: number) => (
-                          <span key={i} className="px-2 py-0.5 rounded-md bg-[#cb4b16]/5 border border-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{req.trim()}</span>
-                        ))}
+                      <div className="flex flex-wrap gap-1 mb-4" onClick={(e) => e.stopPropagation()}>
+                        {(() => {
+                          const reqs = job.requirements.split(',');
+                          const isExpanded = expandedJobTech.has(job.id);
+                          if (reqs.length <= 1 || isExpanded) {
+                            return reqs.map((req: string, i: number) => (
+                              <span key={i} className="px-2 py-0.5 rounded-md bg-[#cb4b16]/5 border border-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{req.trim()}</span>
+                            ));
+                          } else {
+                            return (
+                              <>
+                                <span className="px-2 py-0.5 rounded-md bg-[#cb4b16]/5 border border-[#cfc3a0] text-[#7a6040] text-[8px] font-black uppercase tracking-widest">{reqs[0].trim()}</span>
+                                <button 
+                                  onClick={() => {
+                                    const next = new Set(expandedJobTech);
+                                    next.add(job.id);
+                                    setExpandedJobTech(next);
+                                  }}
+                                  className="px-2 py-0.5 rounded-md bg-[#cb4b16] text-white text-[8px] font-black hover:bg-[#cb4b16]/80 transition-all shadow-sm cursor-pointer"
+                                >
+                                  ...
+                                </button>
+                              </>
+                            );
+                          }
+                        })()}
                       </div>
                     )}
                     
@@ -1056,7 +1080,7 @@ export default function Dashboard() {
         {viewingJob && (
           <div className="fixed inset-0 bg-[#2d2013]/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-4xl rounded-[3rem] shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]">
-              <button onClick={() => setViewingJob(null)} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[210] bg-white/80 rounded-full shadow-sm transition-all hover:rotate-90"><X className="w-6 h-6" /></button>
+              <button onClick={() => { setViewingJob(null); setIsModalTechExpanded(false); }} className="absolute top-6 right-6 p-2 text-[#7a6040] hover:text-[#cb4b16] z-[210] bg-white/80 rounded-full shadow-sm transition-all hover:rotate-90"><X className="w-6 h-6" /></button>
               <div className="flex-1 overflow-y-auto p-10 md:p-14 custom-scrollbar">
                 <div className="flex items-center gap-6 mb-12">
                   <div className="w-24 h-24 rounded-3xl bg-[#2d2013] text-white flex items-center justify-center text-4xl font-black shadow-xl">{viewingJob.recruiterProfile?.companyName?.[0] || "S"}</div>
@@ -1081,29 +1105,41 @@ export default function Dashboard() {
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Comp/Salary</p>
                         <p className="font-bold text-green-700 text-sm md:text-base">{viewingJob.salary || "Not Specified"}</p>
                       </div>
-                      <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
+                      <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm flex flex-col justify-between min-h-[120px] max-h-[160px] overflow-y-auto custom-scrollbar">
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Tech Stack</p>
-                        <p className="font-bold text-[#cb4b16] text-sm md:text-base">{viewingJob.requirements ? `${viewingJob.requirements.split(',').length} Technologies` : "Not Specified"}</p>
+                        {viewingJob.requirements ? (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(() => {
+                              const reqs = viewingJob.requirements.split(',');
+                              if (reqs.length <= 1 || isModalTechExpanded) {
+                                return reqs.map((req: string, i: number) => (
+                                  <span key={i} className="px-2 py-0.5 rounded-md bg-[#cb4b16]/5 border border-[#cb4b16]/10 text-[#cb4b16] text-[10px] font-black uppercase tracking-widest">{req.trim()}</span>
+                                ));
+                              } else {
+                                return (
+                                  <>
+                                    <span className="px-2 py-0.5 rounded-md bg-[#cb4b16]/5 border border-[#cfc3a0] text-[#7a6040] text-[10px] font-black uppercase tracking-widest">{reqs[0].trim()}</span>
+                                    <button 
+                                      onClick={() => setIsModalTechExpanded(true)}
+                                      className="px-2 py-0.5 rounded-md bg-[#cb4b16] text-white text-[10px] font-black hover:bg-[#cb4b16]/80 transition-all shadow-sm cursor-pointer"
+                                    >
+                                      ...
+                                    </button>
+                                  </>
+                                );
+                              }
+                            })()}
+                          </div>
+                        ) : (
+                          <p className="font-bold text-[#2d2013] text-sm">Not Specified</p>
+                        )}
                       </div>
                     </div>
                     
                     <section>
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2"><Sparkles className="w-3 h-3 text-[#cb4b16]" /> Mission & Description</h4>
-                      <p className="text-xl text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap opacity-90 mb-10">{viewingJob.description}</p>
+                      <p className="text-xl text-[#2d2013] leading-relaxed font-medium whitespace-pre-wrap opacity-90">{viewingJob.description}</p>
                     </section>
-                    
-                    {viewingJob.requirements && (
-                      <section>
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-6 flex items-center gap-2">🛠️ Technologies & Skills Required</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {viewingJob.requirements.split(',').map((req: string, i: number) => (
-                            <span key={i} className="px-4 py-2 rounded-2xl bg-[#cb4b16]/10 border border-[#cb4b16]/20 text-[#cb4b16] text-xs font-black uppercase tracking-widest shadow-sm">
-                              {req.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      </section>
-                    )}
                   </div>
 
                   <div className="space-y-6">
@@ -1144,7 +1180,7 @@ export default function Dashboard() {
                   <p className="text-[10px] font-black text-[#7a6040] uppercase tracking-widest mb-1">Final Step</p>
                   <p className="text-xs font-bold text-[#2d2013]">Deploy your professional evidence to this role.</p>
                 </div>
-                <div className="flex-1 max-w-md bg-[#2d2013] text-white py-5 rounded-3xl font-black uppercase tracking-widest text-center shadow-2xl hover:bg-[#cb4b16] hover:scale-[1.02] transition-all cursor-pointer text-xs" onClick={() => { handleApply(viewingJob.id); setViewingJob(null); }}>
+                <div className="flex-1 max-w-md bg-[#2d2013] text-white py-5 rounded-3xl font-black uppercase tracking-widest text-center shadow-2xl hover:bg-[#cb4b16] hover:scale-[1.02] transition-all cursor-pointer text-xs" onClick={() => { handleApply(viewingJob.id); setViewingJob(null); setIsModalTechExpanded(false); }}>
                   Apply
                 </div>
               </div>
