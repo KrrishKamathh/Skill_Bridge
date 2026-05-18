@@ -196,8 +196,11 @@ export default function Dashboard() {
       const res = await fetch("/api/students/browse");
       const data = await res.json();
       if (res.ok && Array.isArray(data)) {
-        const hiddenRaw = localStorage.getItem(`hidden_talent_${session?.user?.id || 'default'}`);
-        const hiddenIds = hiddenRaw ? JSON.parse(hiddenRaw) : [];
+        let hiddenIds: string[] = [];
+        try {
+          const hiddenRaw = localStorage.getItem("hidden_talent_pool");
+          if (hiddenRaw) hiddenIds = JSON.parse(hiddenRaw);
+        } catch (e) { console.error(e); }
         setTalentPool(data.filter((student: any) => !hiddenIds.includes(student.id)));
       }
     } catch (e) { console.error(e); }
@@ -940,10 +943,13 @@ export default function Dashboard() {
                         onClick={(e) => {
                           e.stopPropagation();
                           if (confirm("Remove this student from your talent pool?")) {
-                            const hiddenRaw = localStorage.getItem(`hidden_talent_${session?.user?.id || 'default'}`);
-                            const hiddenIds = hiddenRaw ? JSON.parse(hiddenRaw) : [];
+                            let hiddenIds: string[] = [];
+                            try {
+                              const hiddenRaw = localStorage.getItem("hidden_talent_pool");
+                              if (hiddenRaw) hiddenIds = JSON.parse(hiddenRaw);
+                            } catch (err) { console.error(err); }
                             hiddenIds.push(student.id);
-                            localStorage.setItem(`hidden_talent_${session?.user?.id || 'default'}`, JSON.stringify(hiddenIds));
+                            localStorage.setItem("hidden_talent_pool", JSON.stringify(hiddenIds));
                             setTalentPool(talentPool.filter((s: any) => s.id !== student.id));
                           }
                         }}
