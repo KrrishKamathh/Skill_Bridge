@@ -979,17 +979,17 @@ export default function Dashboard() {
       <AnimatePresence>
         {selectedJob && (
           <div className="fixed inset-0 bg-[#2d2013]/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-4xl rounded-[3rem] p-10 shadow-2xl relative flex flex-col max-h-[85vh]">
-              <button onClick={() => setSelectedJob(null)} className="absolute top-8 right-8 p-3 bg-white rounded-2xl shadow-sm text-[#7a6040] hover:text-[#cb4b16] transition-all hover:rotate-90"><X className="w-6 h-6" /></button>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#fdf6e3] w-full max-w-4xl rounded-[3rem] p-10 shadow-2xl relative flex flex-col max-h-[85vh] overflow-hidden">
+              <button onClick={() => setSelectedJob(null)} className="absolute top-8 right-8 p-3 bg-white rounded-2xl shadow-sm text-[#7a6040] hover:text-[#cb4b16] transition-all hover:rotate-90 z-20"><X className="w-6 h-6" /></button>
               
-              <div className="mb-10">
+              <div className="mb-10 flex-shrink-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Management</p>
                 <h3 className="text-3xl font-black tracking-tighter">Reviewing Applicants</h3>
               </div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 flex flex-col flex-1 overflow-hidden">
                 {/* Advanced Filter Suite */}
-                <div className="p-10 bg-[#2d2013] rounded-[3rem] text-[#fdf6e3] shadow-2xl relative overflow-hidden">
+                <div className="p-10 bg-[#2d2013] rounded-[3rem] text-[#fdf6e3] shadow-2xl relative overflow-hidden flex-shrink-0">
                   <div className="absolute top-0 right-0 p-12 opacity-5"><Sparkles className="w-48 h-48 rotate-12" /></div>
                   <div className="relative z-10">
                     <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Discovery Intelligence</p>
