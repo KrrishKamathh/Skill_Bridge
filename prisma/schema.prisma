@@ -89,6 +89,8 @@ model Job {
   title              String
   description        String?
   location           String?
+  salary             String?
+  requirements       String?
   jobType            String           @default("Full-time") // Full-time, Internship, etc.
   isActive           Boolean          @default(true)
   

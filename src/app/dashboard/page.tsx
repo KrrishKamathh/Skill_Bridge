@@ -52,7 +52,7 @@ export default function Dashboard() {
   const [qualData, setQualData] = useState({ college: "", school: "", cgpa: "", resumeUrl: "" });
   const [newProject, setNewProject] = useState({ id: "", title: "", description: "", imageUrl: "" });
   const [recruiterData, setRecruiterData] = useState({ companyName: "", designation: "", publicBio: "" });
-  const [newJob, setNewJob] = useState({ title: "", type: "Full-time", location: "", description: "" });
+  const [newJob, setNewJob] = useState({ title: "", type: "Full-time", location: "", salary: "", requirements: "", description: "" });
 
   const calculateProfileStrength = () => {
     let strength = 0;
@@ -333,9 +333,9 @@ export default function Dashboard() {
     if (!newJob.title) return;
     setSaveLoading(true);
     try {
-      const res = await fetch("/api/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: newJob.title, jobType: newJob.type, location: newJob.location, description: newJob.description }) });
+      const res = await fetch("/api/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: newJob.title, jobType: newJob.type, location: newJob.location, salary: newJob.salary, requirements: newJob.requirements, description: newJob.description }) });
       if (res.ok) {
-        setNewJob({ title: "", type: "Full-time", location: "", description: "" });
+        setNewJob({ title: "", type: "Full-time", location: "", salary: "", requirements: "", description: "" });
         fetchProfile();
         alert("Job posted!");
       }
@@ -533,6 +533,10 @@ export default function Dashboard() {
                       <select value={newJob.type} onChange={(e) => setNewJob({...newJob, type: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold appearance-none"><option>Full-time</option><option>Internship</option></select>
                       <input type="text" value={newJob.location} onChange={(e) => setNewJob({...newJob, location: e.target.value})} placeholder="Location" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <input type="text" value={newJob.salary} onChange={(e) => setNewJob({...newJob, salary: e.target.value})} placeholder="Salary Range (e.g. $60k - $80k)" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                      <input type="text" value={newJob.requirements} onChange={(e) => setNewJob({...newJob, requirements: e.target.value})} placeholder="Tech Stack Requirements (e.g. React, Node)" className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold" />
+                    </div>
                     <textarea rows={4} value={newJob.description} onChange={(e) => setNewJob({...newJob, description: e.target.value})} placeholder="Job Description..." className="w-full px-6 py-4 rounded-2xl bg-[#fdf6e3] border border-[#cfc3a0] focus:border-[#cb4b16] outline-none font-bold resize-none" />
                     <button onClick={handlePostJob} className="w-full py-5 bg-[#2d2013] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#cb4b16] transition-all shadow-xl">Post Listing</button>
                   </div>
@@ -566,12 +570,27 @@ export default function Dashboard() {
                         <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 text-[8px] font-black uppercase tracking-widest border border-orange-500/20">
                           <Sparkles className="w-2 h-2" /> {85 + (job.title.length % 15)}% Match
                         </div>
-                        <span className="px-3 py-1 rounded-full bg-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{job.type}</span>
+                        <span className="px-3 py-1 rounded-full bg-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{job.type || job.jobType}</span>
                         <span className="text-[8px] font-bold text-[#7a6040] uppercase tracking-widest">{job.location}</span>
                       </div>
                     </div>
-                    <h4 className="text-lg font-black tracking-tight text-[#2d2013] mb-2">{job.title}</h4>
-                    <p className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest mb-4">{job.recruiterProfile?.companyName}</p>
+                    <h4 className="text-lg font-black tracking-tight text-[#2d2013] mb-1">{job.title}</h4>
+                    <p className="text-[10px] font-black text-[#cb4b16] uppercase tracking-widest mb-3">{job.recruiterProfile?.companyName}</p>
+                    
+                    {job.salary && (
+                      <div className="text-xs font-black text-green-700 mb-3 flex items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded bg-green-500/10 border border-green-500/20">💰 {job.salary}</span>
+                      </div>
+                    )}
+                    
+                    {job.requirements && (
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {job.requirements.split(',').map((req: string, i: number) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md bg-[#cb4b16]/5 border border-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{req.trim()}</span>
+                        ))}
+                      </div>
+                    )}
+                    
                     <p className="text-xs text-[#7a6040] line-clamp-3 leading-relaxed mb-8">{job.description}</p>
                     <div className="mt-auto w-full bg-[#2d2013]/5 text-[#2d2013] py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] group-hover:bg-[#cb4b16] group-hover:text-white transition-all text-center">
                       Analyze Role
@@ -1049,14 +1068,22 @@ export default function Dashboard() {
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                   <div className="lg:col-span-2 space-y-12">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Role Intelligence</p>
-                        <p className="font-bold text-[#2d2013] text-lg">{viewingJob.type || viewingJob.jobType}</p>
+                        <p className="font-bold text-[#2d2013] text-sm md:text-base">{viewingJob.type || viewingJob.jobType}</p>
                       </div>
                       <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Hiring Location</p>
-                        <p className="font-bold text-[#2d2013] text-lg">{viewingJob.location}</p>
+                        <p className="font-bold text-[#2d2013] text-sm md:text-base">{viewingJob.location}</p>
+                      </div>
+                      <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Comp/Salary</p>
+                        <p className="font-bold text-green-700 text-sm md:text-base">{viewingJob.salary || "Not Specified"}</p>
+                      </div>
+                      <div className="p-6 bg-white rounded-[2rem] border border-[#cfc3a0] shadow-sm">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#7a6040] mb-2">Tech Stack</p>
+                        <p className="font-bold text-[#cb4b16] text-sm md:text-base truncate">{viewingJob.requirements || "Not Specified"}</p>
                       </div>
                     </div>
                     

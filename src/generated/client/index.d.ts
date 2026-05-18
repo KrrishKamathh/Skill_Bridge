@@ -2924,8 +2924,18 @@ export namespace Prisma {
 
   export type AggregateStudentProfile = {
     _count: StudentProfileCountAggregateOutputType | null
+    _avg: StudentProfileAvgAggregateOutputType | null
+    _sum: StudentProfileSumAggregateOutputType | null
     _min: StudentProfileMinAggregateOutputType | null
     _max: StudentProfileMaxAggregateOutputType | null
+  }
+
+  export type StudentProfileAvgAggregateOutputType = {
+    cgpa: number | null
+  }
+
+  export type StudentProfileSumAggregateOutputType = {
+    cgpa: number | null
   }
 
   export type StudentProfileMinAggregateOutputType = {
@@ -2934,6 +2944,7 @@ export namespace Prisma {
     dob: Date | null
     school: string | null
     college: string | null
+    cgpa: number | null
     achievements: string | null
     resumeUrl: string | null
     location: string | null
@@ -2946,6 +2957,7 @@ export namespace Prisma {
     dob: Date | null
     school: string | null
     college: string | null
+    cgpa: number | null
     achievements: string | null
     resumeUrl: string | null
     location: string | null
@@ -2958,6 +2970,7 @@ export namespace Prisma {
     dob: number
     school: number
     college: number
+    cgpa: number
     achievements: number
     resumeUrl: number
     location: number
@@ -2966,12 +2979,21 @@ export namespace Prisma {
   }
 
 
+  export type StudentProfileAvgAggregateInputType = {
+    cgpa?: true
+  }
+
+  export type StudentProfileSumAggregateInputType = {
+    cgpa?: true
+  }
+
   export type StudentProfileMinAggregateInputType = {
     id?: true
     userId?: true
     dob?: true
     school?: true
     college?: true
+    cgpa?: true
     achievements?: true
     resumeUrl?: true
     location?: true
@@ -2984,6 +3006,7 @@ export namespace Prisma {
     dob?: true
     school?: true
     college?: true
+    cgpa?: true
     achievements?: true
     resumeUrl?: true
     location?: true
@@ -2996,6 +3019,7 @@ export namespace Prisma {
     dob?: true
     school?: true
     college?: true
+    cgpa?: true
     achievements?: true
     resumeUrl?: true
     location?: true
@@ -3041,6 +3065,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: StudentProfileAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StudentProfileSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: StudentProfileMinAggregateInputType
@@ -3071,6 +3107,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: StudentProfileCountAggregateInputType | true
+    _avg?: StudentProfileAvgAggregateInputType
+    _sum?: StudentProfileSumAggregateInputType
     _min?: StudentProfileMinAggregateInputType
     _max?: StudentProfileMaxAggregateInputType
   }
@@ -3081,11 +3119,14 @@ export namespace Prisma {
     dob: Date | null
     school: string | null
     college: string | null
+    cgpa: number | null
     achievements: string | null
     resumeUrl: string | null
     location: string | null
     bio: string | null
     _count: StudentProfileCountAggregateOutputType | null
+    _avg: StudentProfileAvgAggregateOutputType | null
+    _sum: StudentProfileSumAggregateOutputType | null
     _min: StudentProfileMinAggregateOutputType | null
     _max: StudentProfileMaxAggregateOutputType | null
   }
@@ -3110,6 +3151,7 @@ export namespace Prisma {
     dob?: boolean
     school?: boolean
     college?: boolean
+    cgpa?: boolean
     achievements?: boolean
     resumeUrl?: boolean
     location?: boolean
@@ -3125,6 +3167,7 @@ export namespace Prisma {
     dob?: boolean
     school?: boolean
     college?: boolean
+    cgpa?: boolean
     achievements?: boolean
     resumeUrl?: boolean
     location?: boolean
@@ -3138,6 +3181,7 @@ export namespace Prisma {
     dob?: boolean
     school?: boolean
     college?: boolean
+    cgpa?: boolean
     achievements?: boolean
     resumeUrl?: boolean
     location?: boolean
@@ -3165,6 +3209,7 @@ export namespace Prisma {
       dob: Date | null
       school: string | null
       college: string | null
+      cgpa: number | null
       achievements: string | null
       resumeUrl: string | null
       location: string | null
@@ -3569,6 +3614,7 @@ export namespace Prisma {
     readonly dob: FieldRef<"StudentProfile", 'DateTime'>
     readonly school: FieldRef<"StudentProfile", 'String'>
     readonly college: FieldRef<"StudentProfile", 'String'>
+    readonly cgpa: FieldRef<"StudentProfile", 'Float'>
     readonly achievements: FieldRef<"StudentProfile", 'String'>
     readonly resumeUrl: FieldRef<"StudentProfile", 'String'>
     readonly location: FieldRef<"StudentProfile", 'String'>
@@ -5857,6 +5903,8 @@ export namespace Prisma {
     title: string | null
     description: string | null
     location: string | null
+    salary: string | null
+    requirements: string | null
     jobType: string | null
     isActive: boolean | null
     createdAt: Date | null
@@ -5868,6 +5916,8 @@ export namespace Prisma {
     title: string | null
     description: string | null
     location: string | null
+    salary: string | null
+    requirements: string | null
     jobType: string | null
     isActive: boolean | null
     createdAt: Date | null
@@ -5879,6 +5929,8 @@ export namespace Prisma {
     title: number
     description: number
     location: number
+    salary: number
+    requirements: number
     jobType: number
     isActive: number
     createdAt: number
@@ -5892,6 +5944,8 @@ export namespace Prisma {
     title?: true
     description?: true
     location?: true
+    salary?: true
+    requirements?: true
     jobType?: true
     isActive?: true
     createdAt?: true
@@ -5903,6 +5957,8 @@ export namespace Prisma {
     title?: true
     description?: true
     location?: true
+    salary?: true
+    requirements?: true
     jobType?: true
     isActive?: true
     createdAt?: true
@@ -5914,6 +5970,8 @@ export namespace Prisma {
     title?: true
     description?: true
     location?: true
+    salary?: true
+    requirements?: true
     jobType?: true
     isActive?: true
     createdAt?: true
@@ -5998,6 +6056,8 @@ export namespace Prisma {
     title: string
     description: string | null
     location: string | null
+    salary: string | null
+    requirements: string | null
     jobType: string
     isActive: boolean
     createdAt: Date
@@ -6026,6 +6086,8 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    salary?: boolean
+    requirements?: boolean
     jobType?: boolean
     isActive?: boolean
     createdAt?: boolean
@@ -6041,6 +6103,8 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    salary?: boolean
+    requirements?: boolean
     jobType?: boolean
     isActive?: boolean
     createdAt?: boolean
@@ -6053,6 +6117,8 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    salary?: boolean
+    requirements?: boolean
     jobType?: boolean
     isActive?: boolean
     createdAt?: boolean
@@ -6081,6 +6147,8 @@ export namespace Prisma {
       title: string
       description: string | null
       location: string | null
+      salary: string | null
+      requirements: string | null
       jobType: string
       isActive: boolean
       createdAt: Date
@@ -6485,6 +6553,8 @@ export namespace Prisma {
     readonly title: FieldRef<"Job", 'String'>
     readonly description: FieldRef<"Job", 'String'>
     readonly location: FieldRef<"Job", 'String'>
+    readonly salary: FieldRef<"Job", 'String'>
+    readonly requirements: FieldRef<"Job", 'String'>
     readonly jobType: FieldRef<"Job", 'String'>
     readonly isActive: FieldRef<"Job", 'Boolean'>
     readonly createdAt: FieldRef<"Job", 'DateTime'>
@@ -11638,6 +11708,7 @@ export namespace Prisma {
     dob: 'dob',
     school: 'school',
     college: 'college',
+    cgpa: 'cgpa',
     achievements: 'achievements',
     resumeUrl: 'resumeUrl',
     location: 'location',
@@ -11677,6 +11748,8 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     location: 'location',
+    salary: 'salary',
+    requirements: 'requirements',
     jobType: 'jobType',
     isActive: 'isActive',
     createdAt: 'createdAt'
@@ -11805,6 +11878,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -11822,20 +11909,6 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -11956,6 +12029,7 @@ export namespace Prisma {
     dob?: DateTimeNullableFilter<"StudentProfile"> | Date | string | null
     school?: StringNullableFilter<"StudentProfile"> | string | null
     college?: StringNullableFilter<"StudentProfile"> | string | null
+    cgpa?: FloatNullableFilter<"StudentProfile"> | number | null
     achievements?: StringNullableFilter<"StudentProfile"> | string | null
     resumeUrl?: StringNullableFilter<"StudentProfile"> | string | null
     location?: StringNullableFilter<"StudentProfile"> | string | null
@@ -11970,6 +12044,7 @@ export namespace Prisma {
     dob?: SortOrderInput | SortOrder
     school?: SortOrderInput | SortOrder
     college?: SortOrderInput | SortOrder
+    cgpa?: SortOrderInput | SortOrder
     achievements?: SortOrderInput | SortOrder
     resumeUrl?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
@@ -11987,6 +12062,7 @@ export namespace Prisma {
     dob?: DateTimeNullableFilter<"StudentProfile"> | Date | string | null
     school?: StringNullableFilter<"StudentProfile"> | string | null
     college?: StringNullableFilter<"StudentProfile"> | string | null
+    cgpa?: FloatNullableFilter<"StudentProfile"> | number | null
     achievements?: StringNullableFilter<"StudentProfile"> | string | null
     resumeUrl?: StringNullableFilter<"StudentProfile"> | string | null
     location?: StringNullableFilter<"StudentProfile"> | string | null
@@ -12001,13 +12077,16 @@ export namespace Prisma {
     dob?: SortOrderInput | SortOrder
     school?: SortOrderInput | SortOrder
     college?: SortOrderInput | SortOrder
+    cgpa?: SortOrderInput | SortOrder
     achievements?: SortOrderInput | SortOrder
     resumeUrl?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
     bio?: SortOrderInput | SortOrder
     _count?: StudentProfileCountOrderByAggregateInput
+    _avg?: StudentProfileAvgOrderByAggregateInput
     _max?: StudentProfileMaxOrderByAggregateInput
     _min?: StudentProfileMinOrderByAggregateInput
+    _sum?: StudentProfileSumOrderByAggregateInput
   }
 
   export type StudentProfileScalarWhereWithAggregatesInput = {
@@ -12019,6 +12098,7 @@ export namespace Prisma {
     dob?: DateTimeNullableWithAggregatesFilter<"StudentProfile"> | Date | string | null
     school?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
     college?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
+    cgpa?: FloatNullableWithAggregatesFilter<"StudentProfile"> | number | null
     achievements?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
     resumeUrl?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
     location?: StringNullableWithAggregatesFilter<"StudentProfile"> | string | null
@@ -12157,6 +12237,8 @@ export namespace Prisma {
     title?: StringFilter<"Job"> | string
     description?: StringNullableFilter<"Job"> | string | null
     location?: StringNullableFilter<"Job"> | string | null
+    salary?: StringNullableFilter<"Job"> | string | null
+    requirements?: StringNullableFilter<"Job"> | string | null
     jobType?: StringFilter<"Job"> | string
     isActive?: BoolFilter<"Job"> | boolean
     createdAt?: DateTimeFilter<"Job"> | Date | string
@@ -12171,6 +12253,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    salary?: SortOrderInput | SortOrder
+    requirements?: SortOrderInput | SortOrder
     jobType?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -12188,6 +12272,8 @@ export namespace Prisma {
     title?: StringFilter<"Job"> | string
     description?: StringNullableFilter<"Job"> | string | null
     location?: StringNullableFilter<"Job"> | string | null
+    salary?: StringNullableFilter<"Job"> | string | null
+    requirements?: StringNullableFilter<"Job"> | string | null
     jobType?: StringFilter<"Job"> | string
     isActive?: BoolFilter<"Job"> | boolean
     createdAt?: DateTimeFilter<"Job"> | Date | string
@@ -12202,6 +12288,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    salary?: SortOrderInput | SortOrder
+    requirements?: SortOrderInput | SortOrder
     jobType?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -12219,6 +12307,8 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Job"> | string
     description?: StringNullableWithAggregatesFilter<"Job"> | string | null
     location?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    salary?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    requirements?: StringNullableWithAggregatesFilter<"Job"> | string | null
     jobType?: StringWithAggregatesFilter<"Job"> | string
     isActive?: BoolWithAggregatesFilter<"Job"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
@@ -12677,6 +12767,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -12691,6 +12782,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -12703,6 +12795,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12717,6 +12810,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12730,6 +12824,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -12741,6 +12836,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12753,6 +12849,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12892,6 +12989,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -12906,6 +13005,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -12918,6 +13019,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12932,6 +13035,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12945,6 +13050,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -12955,6 +13062,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12966,6 +13075,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13510,6 +13621,17 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type UserRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -13531,10 +13653,15 @@ export namespace Prisma {
     dob?: SortOrder
     school?: SortOrder
     college?: SortOrder
+    cgpa?: SortOrder
     achievements?: SortOrder
     resumeUrl?: SortOrder
     location?: SortOrder
     bio?: SortOrder
+  }
+
+  export type StudentProfileAvgOrderByAggregateInput = {
+    cgpa?: SortOrder
   }
 
   export type StudentProfileMaxOrderByAggregateInput = {
@@ -13543,6 +13670,7 @@ export namespace Prisma {
     dob?: SortOrder
     school?: SortOrder
     college?: SortOrder
+    cgpa?: SortOrder
     achievements?: SortOrder
     resumeUrl?: SortOrder
     location?: SortOrder
@@ -13555,10 +13683,31 @@ export namespace Prisma {
     dob?: SortOrder
     school?: SortOrder
     college?: SortOrder
+    cgpa?: SortOrder
     achievements?: SortOrder
     resumeUrl?: SortOrder
     location?: SortOrder
     bio?: SortOrder
+  }
+
+  export type StudentProfileSumOrderByAggregateInput = {
+    cgpa?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type StudentProfileRelationFilter = {
@@ -13646,6 +13795,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     location?: SortOrder
+    salary?: SortOrder
+    requirements?: SortOrder
     jobType?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -13657,6 +13808,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     location?: SortOrder
+    salary?: SortOrder
+    requirements?: SortOrder
     jobType?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -13668,6 +13821,8 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     location?: SortOrder
+    salary?: SortOrder
+    requirements?: SortOrder
     jobType?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -14150,6 +14305,14 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type UserUpdateOneRequiredWithoutStudentProfileNestedInput = {
     create?: XOR<UserCreateWithoutStudentProfileInput, UserUncheckedCreateWithoutStudentProfileInput>
     connectOrCreate?: UserCreateOrConnectWithoutStudentProfileInput
@@ -14584,6 +14747,33 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -14611,17 +14801,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type AccountCreateWithoutUserInput = {
@@ -14689,6 +14868,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -14701,6 +14881,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -14864,6 +15045,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14876,6 +15058,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15125,6 +15308,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -15138,6 +15322,7 @@ export namespace Prisma {
     dob?: Date | string | null
     school?: string | null
     college?: string | null
+    cgpa?: number | null
     achievements?: string | null
     resumeUrl?: string | null
     location?: string | null
@@ -15165,6 +15350,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15178,6 +15364,7 @@ export namespace Prisma {
     dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     school?: NullableStringFieldUpdateOperationsInput | string | null
     college?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableFloatFieldUpdateOperationsInput | number | null
     achievements?: NullableStringFieldUpdateOperationsInput | string | null
     resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15234,6 +15421,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -15246,6 +15435,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -15339,6 +15530,8 @@ export namespace Prisma {
     title?: StringFilter<"Job"> | string
     description?: StringNullableFilter<"Job"> | string | null
     location?: StringNullableFilter<"Job"> | string | null
+    salary?: StringNullableFilter<"Job"> | string | null
+    requirements?: StringNullableFilter<"Job"> | string | null
     jobType?: StringFilter<"Job"> | string
     isActive?: BoolFilter<"Job"> | boolean
     createdAt?: DateTimeFilter<"Job"> | Date | string
@@ -15528,6 +15721,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -15541,6 +15736,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -15619,6 +15816,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15632,6 +15831,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15688,6 +15889,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -15701,6 +15904,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -15779,6 +15984,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15792,6 +15999,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16179,6 +16388,8 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    salary?: string | null
+    requirements?: string | null
     jobType?: string
     isActive?: boolean
     createdAt?: Date | string
@@ -16189,6 +16400,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16201,6 +16414,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16213,6 +16428,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableStringFieldUpdateOperationsInput | string | null
+    requirements?: NullableStringFieldUpdateOperationsInput | string | null
     jobType?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

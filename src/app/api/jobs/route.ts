@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { title, jobType, location, description } = await req.json();
+    const { title, jobType, location, salary, requirements, description } = await req.json();
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -26,6 +26,8 @@ export async function POST(req: Request) {
         title,
         jobType,
         location,
+        salary,
+        requirements,
         description,
         recruiterProfileId: user.recruiterProfile.id
       }

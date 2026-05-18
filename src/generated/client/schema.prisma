@@ -47,6 +47,7 @@ model StudentProfile {
   dob          DateTime?
   school       String?
   college      String?
+  cgpa         Float?
   achievements String? // Stored as text/markdown
   resumeUrl    String?
   location     String?
@@ -85,11 +86,13 @@ model Job {
   recruiterProfileId String
   recruiterProfile   RecruiterProfile @relation(fields: [recruiterProfileId], references: [id], onDelete: Cascade)
 
-  title       String
-  description String?
-  location    String?
-  jobType     String  @default("Full-time") // Full-time, Internship, etc.
-  isActive    Boolean @default(true)
+  title        String
+  description  String?
+  location     String?
+  salary       String?
+  requirements String?
+  jobType      String  @default("Full-time") // Full-time, Internship, etc.
+  isActive     Boolean @default(true)
 
   applications Application[]
   bookmarks    Bookmark[]

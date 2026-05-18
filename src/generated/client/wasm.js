@@ -143,6 +143,7 @@ exports.Prisma.StudentProfileScalarFieldEnum = {
   dob: 'dob',
   school: 'school',
   college: 'college',
+  cgpa: 'cgpa',
   achievements: 'achievements',
   resumeUrl: 'resumeUrl',
   location: 'location',
@@ -173,6 +174,8 @@ exports.Prisma.JobScalarFieldEnum = {
   title: 'title',
   description: 'description',
   location: 'location',
+  salary: 'salary',
+  requirements: 'requirements',
   jobType: 'jobType',
   isActive: 'isActive',
   createdAt: 'createdAt'

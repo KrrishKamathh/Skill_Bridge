@@ -45,7 +45,7 @@ export async function GET() {
     `;
 
     const jobListings = jobs.map(job => 
-      `ID: ${job.id} | Title: ${job.title} | Type: ${job.jobType} | Desc: ${job.description || ''}`
+      `ID: ${job.id} | Title: ${job.title} | Type: ${job.jobType} | Req: ${job.requirements || ''} | Salary: ${job.salary || ''} | Desc: ${job.description || ''}`
     ).join('\n');
 
     const prompt = `
