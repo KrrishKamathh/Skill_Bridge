@@ -250,7 +250,7 @@ export default function Dashboard() {
     return Math.min(Math.max(Math.round(baseScore), 10), 98);
   };
 
-  const calculateProfileStrength = (student: any): number => {
+  const calculateProfileStrengthForStudent = (student: any): number => {
     if (!student) return 0;
     let score = 30; // base profile score
     if (student.college) score += 15;
@@ -1361,7 +1361,7 @@ export default function Dashboard() {
                            strokeDashoffset: 503 - (503 * (
                              selectedJob 
                                ? calculateJobMatchScore(viewingProfile.user?.studentProfile, selectedJob) / 100 
-                               : calculateProfileStrength(viewingProfile.user?.studentProfile) / 100
+                               : calculateProfileStrengthForStudent(viewingProfile.user?.studentProfile) / 100
                            )) 
                          }}
                          transition={{ duration: 2, ease: "circOut", delay: 0.5 }}
@@ -1377,7 +1377,7 @@ export default function Dashboard() {
                        >
                          {selectedJob 
                            ? calculateJobMatchScore(viewingProfile.user?.studentProfile, selectedJob) 
-                           : calculateProfileStrength(viewingProfile.user?.studentProfile)}%
+                           : calculateProfileStrengthForStudent(viewingProfile.user?.studentProfile)}%
                        </motion.span>
                        <span className="text-[10px] font-black text-[#cb4b16] uppercase tracking-[0.2em] mt-1">
                          {selectedJob ? "Job Match" : "Profile Strength"}
