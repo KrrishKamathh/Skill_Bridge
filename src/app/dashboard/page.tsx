@@ -37,7 +37,7 @@ import {
   Heart
 } from "lucide-react";
 
-type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings" | "watchlist";
+type DashboardTab = "overview" | "marketplace" | "applications" | "talent" | "personal" | "qualifications" | "portfolio" | "company" | "listings" | "watchlist" | "upskill";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -250,6 +250,40 @@ export default function Dashboard() {
     return Math.min(Math.max(Math.round(baseScore), 10), 98);
   };
 
+  const getMissingSkills = (student: any, job: any): string[] => {
+    if (!student || !job || !job.requirements) return [];
+    
+    const studentText = `${student.bio || ""} ${student.school || ""} ${student.college || ""} ${student.achievements || ""} ${student.projects?.map((p: any) => p.title + " " + p.description).join(" ") || ""}`.toLowerCase();
+    
+    const reqs = job.requirements.split(",").map((r: string) => r.trim());
+    const missing: string[] = [];
+    
+    reqs.forEach((req: string) => {
+      const normalizedReq = req.toLowerCase();
+      const synonyms: Record<string, string[]> = {
+        "react": ["react", "nextjs", "frontend", "next.js"],
+        "node": ["node", "express", "backend"],
+        "typescript": ["typescript", "ts"],
+        "javascript": ["javascript", "js"],
+        "figma": ["figma", "ui/ux", "design"],
+        "photoshop": ["photoshop", "illustrator", "design", "graphic"],
+        "sql": ["sql", "postgres", "mysql", "database"],
+        "prisma": ["prisma", "orm", "database"]
+      };
+      
+      let matched = studentText.includes(normalizedReq);
+      if (!matched && synonyms[normalizedReq]) {
+        matched = synonyms[normalizedReq].some(syn => studentText.includes(syn));
+      }
+      
+      if (!matched) {
+        missing.push(req);
+      }
+    });
+    
+    return missing;
+  };
+
   const calculateProfileStrengthForStudent = (student: any): number => {
     if (!student) return 0;
     let score = 30; // base profile score
@@ -438,6 +472,7 @@ export default function Dashboard() {
               <NavItem icon={<Globe className="w-4 h-4" />} label="Job Board" active={activeTab === "marketplace"} onClick={() => setActiveTab("marketplace")} />
               <NavItem icon={<FileText className="w-4 h-4" />} label="Applications" active={activeTab === "applications"} onClick={() => setActiveTab("applications")} badge={myApplications?.length || 0} />
               <NavItem icon={<Bookmark className="w-4 h-4" />} label="Watchlist" active={activeTab === "watchlist"} onClick={() => setActiveTab("watchlist")} badge={bookmarks?.length || 0} />
+              <NavItem icon={<GraduationCap className="w-4 h-4" />} label="Upskill Hub" active={activeTab === "upskill"} onClick={() => setActiveTab("upskill")} />
             </>
           ) : (
             <>
@@ -659,6 +694,23 @@ export default function Dashboard() {
                         })()}
                       </div>
                     )}
+
+                    {userData?.studentProfile && (
+                      (() => {
+                        const missing = getMissingSkills(userData.studentProfile, job);
+                        if (missing.length > 0) {
+                          return (
+                            <div className="mb-4 flex flex-wrap gap-1 items-center">
+                              <span className="text-[8px] font-black text-red-600 uppercase tracking-widest mr-1">Missing Gaps:</span>
+                              {missing.map((skill, idx) => (
+                                <span key={idx} className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-600 border border-red-500/20 text-[7px] font-black uppercase tracking-widest">{skill}</span>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()
+                    )}
                     
                     <p className="text-xs text-[#7a6040] line-clamp-3 leading-relaxed mb-8">{job.description}</p>
                     <div className="mt-auto w-full bg-[#2d2013]/5 text-[#2d2013] py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] group-hover:bg-[#cb4b16] group-hover:text-white transition-all text-center">
@@ -774,6 +826,163 @@ export default function Dashboard() {
                     ))}
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {userRole === "STUDENT" && activeTab === "upskill" && (
+              <motion.div key="upskill" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 max-w-4xl mx-auto">
+                {/* Upskill Hub Header */}
+                <div className="bg-[#2d2013] rounded-[2.5rem] p-10 text-[#fdf6e3] shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-10 opacity-10"><GraduationCap className="w-32 h-32 rotate-12" /></div>
+                  <div className="relative z-10">
+                    <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#cb4b16] mb-2">Technical Upgrades</p>
+                    <h3 className="text-3xl font-black tracking-tighter mb-2">Upskill & Certification Hub</h3>
+                    <p className="text-xs text-[#eee8d5]/60 font-medium">Bridge your engineering requirements, view recommended coursework, and upload verified certification proofs to level up your matchmaking scores.</p>
+                  </div>
+                </div>
+
+                {/* Aggregated Missing Skills Grid */}
+                {(() => {
+                  const studentProfile = userData?.studentProfile;
+                  if (!studentProfile) return null;
+
+                  // Gather all missing skills from bookmarked jobs and rejection reports
+                  const missingSkillsSet = new Set<string>();
+                  const skillSources: Record<string, string[]> = {};
+                  
+                  // 1. Scan bookmarks
+                  bookmarks.forEach((bm: any) => {
+                    if (bm.job) {
+                      const gaps = getMissingSkills(studentProfile, bm.job);
+                      gaps.forEach(skill => {
+                        missingSkillsSet.add(skill);
+                        if (!skillSources[skill]) skillSources[skill] = [];
+                        if (!skillSources[skill].includes(bm.job.title)) {
+                          skillSources[skill].push(bm.job.title);
+                        }
+                      });
+                    }
+                  });
+
+                  // 2. Scan active rejections for missing skill feedback
+                  myApplications.forEach((app: any) => {
+                    if (app.status === "REJECTED" && app.skillGaps) {
+                      const gaps = app.skillGaps.split(",").map((s: string) => s.trim());
+                      gaps.forEach((skill: string) => {
+                        if (skill) {
+                          missingSkillsSet.add(skill);
+                          if (!skillSources[skill]) skillSources[skill] = [];
+                          if (!skillSources[skill].includes(`Rejection Feedback (${app.job.title})`)) {
+                            skillSources[skill].push(`Rejection Feedback (${app.job.title})`);
+                          }
+                        }
+                      });
+                    }
+                  });
+
+                  const missingSkills = Array.from(missingSkillsSet);
+
+                  if (missingSkills.length === 0) {
+                    return (
+                      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-20 bg-white/40 border border-dashed border-[#cfc3a0] rounded-[2.5rem] shadow-sm">
+                        <div className="w-20 h-20 bg-[#cb4b16]/10 rounded-full flex items-center justify-center mb-6 text-[#cb4b16] shadow-inner mx-auto">
+                          <ShieldCheck className="w-10 h-10" />
+                        </div>
+                        <h3 className="text-2xl font-black text-[#2d2013] mb-2 tracking-tight">Zero Skill Gaps Detected!</h3>
+                        <p className="text-sm font-bold text-[#7a6040] max-w-md leading-relaxed mx-auto">Outstanding work. Your current achievements, projects, and credentials satisfy the requirements of all bookmarked and rejected roles.</p>
+                      </motion.div>
+                    );
+                  }
+
+                  const courseDirectory: Record<string, { title: string, url: string }> = {
+                    "react": { title: "React Official Docs & Quickstart", url: "https://react.dev" },
+                    "next.js": { title: "Next.js Interactive Dashboard Tutorial", url: "https://nextjs.org/learn" },
+                    "nextjs": { title: "Next.js Interactive Dashboard Tutorial", url: "https://nextjs.org/learn" },
+                    "typescript": { title: "TypeScript Deep Dive Handbook", url: "https://www.typescriptlang.org/docs/" },
+                    "javascript": { title: "Modern JavaScript (MDN Guides)", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+                    "node": { title: "Node.js Complete Getting Started Guides", url: "https://nodejs.org/en/docs" },
+                    "express": { title: "Express.js RESTful API Tutorial", url: "https://expressjs.com/" },
+                    "figma": { title: "Figma UI/UX Essentials Design Course", url: "https://www.figma.com/resources/learn-design/" },
+                    "photoshop": { title: "Adobe Photoshop Certified Training Guide", url: "https://helpx.adobe.com/photoshop/tutorials.html" },
+                    "sql": { title: "SQL Database Complete Crashcourse", url: "https://sqlbolt.com/" },
+                    "postgres": { title: "PostgreSQL Database Administration Guide", url: "https://www.postgresql.org/docs/" },
+                    "prisma": { title: "Prisma Schema & ORM Guided Tutorial", url: "https://www.prisma.io/docs" },
+                    "tailwind": { title: "Tailwind CSS Layouts & Components", url: "https://tailwindcss.com/docs" }
+                  };
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {missingSkills.map((skill) => {
+                        const normSkill = skill.toLowerCase();
+                        const recommendation = courseDirectory[normSkill] || {
+                          title: `${skill} Professional Reference Guide`,
+                          url: `https://www.google.com/search?q=${encodeURIComponent(skill + " documentation developer course")}`
+                        };
+
+                        return (
+                          <div key={skill} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between min-h-[300px]">
+                            <div>
+                              <div className="flex justify-between items-start mb-6">
+                                <span className="px-3 py-1 rounded-full bg-red-500/10 text-red-600 text-[9px] font-black uppercase tracking-widest border border-red-500/20">Missing Skill Gaps</span>
+                                <span className="text-[8px] font-bold text-[#7a6040] uppercase tracking-widest truncate max-w-[150px]">Required by {skillSources[skill]?.length || 1} roles</span>
+                              </div>
+                              <h4 className="text-2xl font-black text-[#2d2013] tracking-tighter mb-2">{skill}</h4>
+                              <p className="text-[10px] text-[#7a6040]/70 font-bold uppercase tracking-wider mb-4 leading-relaxed">
+                                Sources: {skillSources[skill]?.join(", ")}
+                              </p>
+                              <div className="p-4 bg-[#2d2013]/5 rounded-2xl border border-[#cfc3a0]/30 mb-6 flex justify-between items-center group/btn cursor-pointer" onClick={() => window.open(recommendation.url, '_blank')}>
+                                <div>
+                                  <p className="text-[8px] font-black uppercase tracking-widest text-[#cb4b16] mb-0.5">Recommended Coursework</p>
+                                  <p className="text-xs font-black text-[#2d2013] truncate max-w-[200px]">{recommendation.title}</p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 text-[#cb4b16] group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                              </div>
+                            </div>
+
+                            <div className="relative">
+                              <input 
+                                type="file" 
+                                id={`upload-cert-${skill}`} 
+                                className="hidden" 
+                                accept="image/*,.pdf" 
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = async () => {
+                                      setSaveLoading(true);
+                                      try {
+                                        const mockProject = {
+                                          id: "",
+                                          title: `Verified Certificate: ${skill}`,
+                                          description: `Successfully completed verified professional training in ${skill} to bridge required technical skill gaps.`,
+                                          evidenceLink: reader.result as string
+                                        };
+                                        const res = await fetch("/api/projects", { 
+                                          method: "POST", 
+                                          headers: { "Content-Type": "application/json" }, 
+                                          body: JSON.stringify(mockProject) 
+                                        });
+                                        if (res.ok) {
+                                          fetchProfile();
+                                          alert(`Congratulations! You have verified your ${skill} certificate and bridged this skill gap.`);
+                                        }
+                                      } catch (err) { console.error(err); } finally { setSaveLoading(false); }
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                              <label htmlFor={`upload-cert-${skill}`} className="w-full py-4 bg-[#2d2013] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cb4b16] hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md">
+                                <Upload className="w-4 h-4" /> Verify Certificate & Resolve Gap
+                              </label>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </motion.div>
             )}
 
@@ -1415,6 +1624,30 @@ export default function Dashboard() {
                       ))}
                     </ul>
                   </div>
+                  {selectedJob && (() => {
+                    const activeJobObj = jobs.find((j: any) => j.id === selectedJob);
+                    if (!activeJobObj) return null;
+                    const gaps = getMissingSkills(viewingProfile.user?.studentProfile, activeJobObj);
+                    return (
+                      <div className="p-8 bg-red-500/10 border border-red-500/20 text-[#2d2013] rounded-[2.5rem] shadow-inner relative overflow-hidden">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-4 flex items-center gap-2">
+                          <Target className="w-3 h-3 text-red-600" /> Job Requirement Gaps
+                        </h4>
+                        {gaps.length === 0 ? (
+                          <p className="text-xs font-bold text-green-700">Satisfies all requirements for this role! ✓</p>
+                        ) : (
+                          <div className="space-y-3">
+                            <p className="text-[10px] text-[#7a6040] font-bold leading-relaxed">This candidate is missing the following stack requirements specified for the {activeJobObj.title} role:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {gaps.map((skill, i) => (
+                                <span key={i} className="px-2.5 py-1 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm">{skill}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {userRole === "RECRUITER" && viewingProfile?.status === "PENDING" && (
