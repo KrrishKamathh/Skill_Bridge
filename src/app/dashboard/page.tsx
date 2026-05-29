@@ -209,80 +209,80 @@ export default function Dashboard() {
   // Filter States
   const [filters, setFilters] = useState({ minCgpa: "", collegeKeyword: "", skillKeywords: "" });
 
+  // Shared synonym map used by BOTH scoring and gap detection
+  const skillSynonyms: Record<string, string[]> = {
+    "react": ["react", "nextjs", "next.js", "frontend"],
+    "node": ["node", "express", "backend"],
+    "typescript": ["typescript", "ts"],
+    "javascript": ["javascript", "js"],
+    "figma": ["figma", "ui/ux", "design", "prototyping"],
+    "photoshop": ["photoshop", "illustrator", "graphic", "design", "creative"],
+    "illustrator": ["illustrator", "photoshop", "graphic", "design", "creative"],
+    "graphic design": ["graphic design", "design", "photoshop", "illustrator", "figma"],
+    "creative suite": ["creative suite", "photoshop", "illustrator", "adobe", "design"],
+    "sql": ["sql", "postgres", "mysql", "database"],
+    "prisma": ["prisma", "orm", "database"],
+    "tailwind": ["tailwind", "css"],
+    "python": ["python", "ml", "ai", "data science"],
+  };
+
+  const skillMatchedInText = (skill: string, studentText: string): boolean => {
+    const normalized = skill.toLowerCase();
+    if (studentText.includes(normalized)) return true;
+    const synonyms = skillSynonyms[normalized];
+    if (synonyms) return synonyms.some(syn => studentText.includes(syn));
+    return false;
+  };
+
   const calculateJobMatchScore = (student: any, job: any): number => {
     if (!student || !job) return 50;
 
     const studentText = `${student.bio || ""} ${student.school || ""} ${student.college || ""} ${student.achievements || ""} ${student.projects?.map((p: any) => p.title + " " + p.description).join(" ") || ""}`.toLowerCase();
-    const jobText = `${job.title} ${job.requirements || ""} ${job.description || ""}`.toLowerCase();
 
-    const isFinanceStudent = studentText.includes("finance") || studentText.includes("commerce") || studentText.includes("accounting") || studentText.includes("bcom") || studentText.includes("cfa");
-    const isDesignJob = jobText.includes("design") || jobText.includes("figma") || jobText.includes("photoshop") || jobText.includes("illustrator") || jobText.includes("graphic") || jobText.includes("ui/ux");
-
-    // Hard career path mismatch check: Finance student with zero design projects/skills
-    if (isFinanceStudent && isDesignJob) {
-      const hasDesignSkill = studentText.includes("design") || studentText.includes("figma") || studentText.includes("photoshop") || studentText.includes("illustrator") || studentText.includes("ui/ux");
-      if (!hasDesignSkill) return 18; // Obvious Mismatch: 18% Match
+    // If NO requirements are listed, fall back to profile completeness score
+    if (!job.requirements || !job.requirements.trim()) {
+      let base = 40;
+      if (student.college) base += 10;
+      if (student.resumeUrl) base += 15;
+      base += Math.min((student.projects?.length || 0) * 5, 20);
+      return Math.min(base, 75);
     }
 
-    // Tech job mismatch check: Finance student with zero coding skills
-    const isTechJob = jobText.includes("developer") || jobText.includes("engineer") || jobText.includes("software") || jobText.includes("react") || jobText.includes("coding");
-    if (isFinanceStudent && isTechJob) {
-      const hasTechSkill = studentText.includes("coding") || studentText.includes("developer") || studentText.includes("react") || studentText.includes("python") || studentText.includes("javascript") || studentText.includes("btech");
-      if (!hasTechSkill) return 22; // Obvious Mismatch: 22% Match
-    }
+    const reqs = job.requirements.split(",").map((r: string) => r.trim()).filter(Boolean);
+    if (reqs.length === 0) return 50;
 
-    // Calculate dynamic matching based on shared keywords
-    let baseScore = 65;
+    // Count how many requirements the student actually satisfies
+    let matchedCount = 0;
+    reqs.forEach((req: string) => {
+      if (skillMatchedInText(req, studentText)) matchedCount++;
+    });
 
-    // Add points for matching tech requirements
-    if (job.requirements) {
-      const reqs = job.requirements.split(",").map((r: string) => r.trim().toLowerCase());
-      let matchCount = 0;
-      reqs.forEach((req: string) => {
-        if (studentText.includes(req)) matchCount++;
-      });
-      if (reqs.length > 0) {
-        baseScore += (matchCount / reqs.length) * 30;
-      }
-    }
+    const matchRatio = matchedCount / reqs.length;
 
-    // Cap the score between 10% and 98%
-    return Math.min(Math.max(Math.round(baseScore), 10), 98);
+    // Score = 20% base (just for being a user) + up to 78% from skill matching
+    // So: 0 skills matched = 20%, all skills matched = 98%
+    const score = 20 + Math.round(matchRatio * 78);
+
+    return Math.min(Math.max(score, 10), 98);
   };
 
   const getMissingSkills = (student: any, job: any): string[] => {
     if (!student || !job || !job.requirements) return [];
-    
+
     const studentText = `${student.bio || ""} ${student.school || ""} ${student.college || ""} ${student.achievements || ""} ${student.projects?.map((p: any) => p.title + " " + p.description).join(" ") || ""}`.toLowerCase();
-    
-    const reqs = job.requirements.split(",").map((r: string) => r.trim());
+
+    const reqs = job.requirements.split(",").map((r: string) => r.trim()).filter(Boolean);
     const missing: string[] = [];
-    
+
     reqs.forEach((req: string) => {
-      const normalizedReq = req.toLowerCase();
-      const synonyms: Record<string, string[]> = {
-        "react": ["react", "nextjs", "frontend", "next.js"],
-        "node": ["node", "express", "backend"],
-        "typescript": ["typescript", "ts"],
-        "javascript": ["javascript", "js"],
-        "figma": ["figma", "ui/ux", "design"],
-        "photoshop": ["photoshop", "illustrator", "design", "graphic"],
-        "sql": ["sql", "postgres", "mysql", "database"],
-        "prisma": ["prisma", "orm", "database"]
-      };
-      
-      let matched = studentText.includes(normalizedReq);
-      if (!matched && synonyms[normalizedReq]) {
-        matched = synonyms[normalizedReq].some(syn => studentText.includes(syn));
-      }
-      
-      if (!matched) {
+      if (!skillMatchedInText(req, studentText)) {
         missing.push(req);
       }
     });
-    
+
     return missing;
   };
+
 
   const calculateProfileStrengthForStudent = (student: any): number => {
     if (!student) return 0;
