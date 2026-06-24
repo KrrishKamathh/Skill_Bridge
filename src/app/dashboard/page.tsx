@@ -650,7 +650,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 text-[8px] font-black uppercase tracking-widest border border-orange-500/20">
-                          <Sparkles className="w-2 h-2" /> {job.aiMatchScore !== undefined ? job.aiMatchScore : (85 + (job.title.length % 15))}% Match
+                          <Sparkles className="w-2 h-2" /> {userData?.studentProfile ? calculateJobMatchScore(userData.studentProfile, job) : (job.aiMatchScore !== undefined ? job.aiMatchScore : (85 + (job.title.length % 15)))}% Match
                         </div>
                         <span className="px-3 py-1 rounded-full bg-[#cb4b16]/10 text-[#cb4b16] text-[8px] font-black uppercase tracking-widest">{job.type || job.jobType}</span>
                         <span className="text-[8px] font-bold text-[#7a6040] uppercase tracking-widest">{job.location}</span>
