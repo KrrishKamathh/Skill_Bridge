@@ -1506,7 +1506,19 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <h2 className="text-3xl font-black tracking-tighter">{viewingProfile.user?.name}</h2>
-                    <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-[10px]">{viewingProfile.user?.studentProfile?.college || "SkillBridge Verified"}</p>
+                    <p className="text-[#cb4b16] font-bold uppercase tracking-widest text-[10px] mb-2">{viewingProfile.user?.studentProfile?.college || "SkillBridge Verified"}</p>
+                    <div className="flex gap-2">
+                      {viewingProfile.user?.studentProfile?.githubUrl && (
+                        <a href={viewingProfile.user.studentProfile.githubUrl.startsWith('http') ? viewingProfile.user.studentProfile.githubUrl : `https://${viewingProfile.user.studentProfile.githubUrl}`} target="_blank" rel="noopener noreferrer" className="p-2 bg-[#2d2013] text-white rounded-lg hover:scale-110 transition-transform shadow-sm" title="GitHub">
+                          <Globe className="w-4 h-4" />
+                        </a>
+                      )}
+                      {viewingProfile.user?.studentProfile?.linkedinUrl && (
+                        <a href={viewingProfile.user.studentProfile.linkedinUrl.startsWith('http') ? viewingProfile.user.studentProfile.linkedinUrl : `https://${viewingProfile.user.studentProfile.linkedinUrl}`} target="_blank" rel="noopener noreferrer" className="p-2 bg-[#0077b5] text-white rounded-lg hover:scale-110 transition-transform shadow-sm" title="LinkedIn">
+                          <Users className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
 
