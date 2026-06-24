@@ -52,6 +52,8 @@ model StudentProfile {
   resumeUrl    String?
   location     String?
   bio          String?
+  githubUrl    String?
+  linkedinUrl  String?
 
   projects Project[]
 }
