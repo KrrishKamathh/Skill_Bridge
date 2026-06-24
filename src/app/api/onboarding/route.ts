@@ -37,6 +37,8 @@ export async function POST(req: Request) {
           location: data.location,
           bio: data.bio,
           resumeUrl: data.resumeUrl,
+          githubUrl: data.githubUrl,
+          linkedinUrl: data.linkedinUrl,
         },
         create: {
           userId,
@@ -48,6 +50,8 @@ export async function POST(req: Request) {
           location: data.location,
           bio: data.bio,
           resumeUrl: data.resumeUrl,
+          githubUrl: data.githubUrl,
+          linkedinUrl: data.linkedinUrl,
         },
       });
 
