@@ -378,10 +378,11 @@ export default function Dashboard() {
   const handleUpdate = async (data: any) => {
     setSaveLoading(true);
     try {
-      await fetch("/api/onboarding", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      fetchProfile();
+      const res = await fetch("/api/onboarding", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error("Save failed");
+      await fetchProfile();
       alert("Saved!");
-    } catch (e) { console.error(e); } finally { setSaveLoading(false); }
+    } catch (e) { console.error(e); alert("Failed to save. Please try again."); } finally { setSaveLoading(false); }
   };
 
   const fetchApplicants = async (jobId: string) => {
