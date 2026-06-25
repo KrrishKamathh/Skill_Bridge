@@ -585,10 +585,10 @@ export default function Dashboard() {
                 {/* Hiring Momentum Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   {[
-                    { label: "Total Reach", value: "12.4k", icon: <Globe className="w-4 h-4" /> },
-                    { label: "Evidence Verified", value: "482", icon: <ShieldCheck className="w-4 h-4" /> },
+                    { label: "Total Reach", value: jobs.reduce((sum: number, j: any) => sum + (j.applications?.length || 0), 0), icon: <Globe className="w-4 h-4" /> },
+                    { label: "Evidence Verified", value: jobs.reduce((sum: number, j: any) => sum + (j.applications?.filter((a: any) => a.user?.studentProfile?.resumeUrl).length || 0), 0), icon: <ShieldCheck className="w-4 h-4" /> },
                     { label: "Active Listings", value: jobs.length, icon: <Briefcase className="w-4 h-4" /> },
-                    { label: "Hiring Velocity", value: "HIGH", icon: <TrendingUp className="w-4 h-4" /> },
+                    { label: "Hiring Velocity", value: jobs.reduce((sum: number, j: any) => sum + (j.applications?.filter((a: any) => a.status === "SHORTLISTED").length || 0), 0) > 0 ? "HIGH" : jobs.reduce((sum: number, j: any) => sum + (j.applications?.length || 0), 0) > 0 ? "ACTIVE" : "NEW", icon: <TrendingUp className="w-4 h-4" /> },
                   ].map((stat, i) => (
                     <div key={i} className="p-8 bg-white/60 border border-[#cfc3a0] rounded-[2.5rem] shadow-sm">
                       <div className="flex items-center gap-3 mb-4 text-[#cb4b16]">
